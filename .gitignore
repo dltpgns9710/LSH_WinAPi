@@ -1,0 +1,42 @@
+# Visual Studio build output
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+Win32/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio intermediate/cache files
+*.ilk
+*.obj
+*.pdb
+*.ipdb
+*.iobj
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlog
+*.log
+*.exp
+*.lib
+*.res
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+
+# Visual Studio directories
+.vs/
+
+# Rider / .idea
+.idea/
+
+# ReSharper
+*.DotSettings.user
+
+# Resources folder (project assets not tracked in git)
+WindowsProject1/Resources/
