@@ -1,9 +1,9 @@
-﻿// WindowsProject1.cpp : 애플리케이션에 대한 진입점을 정의합니다.
+﻿// WinapiPortfolio.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 
 #include <memory>
 #include "framework.h"
-#include "WindowsProject1.h"
+#include "WinapiPortfolio.h"
 #include "Framework/Graphics/include/Graphics.h"
 #include "Framework/Manager/include/SceneManager.h"
 
@@ -46,7 +46,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_WINDOWSPROJECT1, szWindowClass, MAX_LOADSTRING);
+    LoadStringW(hInstance, IDC_WINAPIPORTFOLIO, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
 
     // 애플리케이션 초기화를 수행합니다:
@@ -55,7 +55,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WINDOWSPROJECT1));
+    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WINAPIPORTFOLIO));
 
     SpriteSheetManager::GetInstance().Init(graphics, L"Resources/Texture");
     DataManager::GetInstance().Init(L"Resources/Data");
@@ -112,7 +112,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINDOWSPROJECT1));
+    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINAPIPORTFOLIO));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
     wcex.lpszMenuName   = 0;

@@ -22,7 +22,7 @@
     <VCProjectVersion>18.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{939cae27-a30b-4517-b4da-4d8855f2faa1}</ProjectGuid>
-    <RootNamespace>WindowsProject1</RootNamespace>
+    <RootNamespace>WinapiPortfolio</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -158,7 +158,7 @@
     <ClInclude Include="Level\Level1.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="WindowsProject1.h" />
+    <ClInclude Include="WinapiPortfolio.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Framework\Component\src\CollisionComponent.cpp" />
@@ -182,11 +182,11 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="WindowsProject1.rc" />
+    <ResourceCompile Include="WinapiPortfolio.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico" />
-    <Image Include="WindowsProject1.ico" />
+    <Image Include="WinapiPortfolio.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
