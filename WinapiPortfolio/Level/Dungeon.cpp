@@ -1,7 +1,7 @@
 ﻿#include "Dungeon.h"
 
-#include "../Framework/Graphics/include/SpriteAtlas.h"
-#include "../Framework/Manager/include/SpriteSheetManager.h"
+#include "../D2DFramework/Graphics/include/SpriteAtlas.h"
+#include "../D2DFramework/Manager/include/SpriteSheetManager.h"
 
 void Dungeon::Load()
 {

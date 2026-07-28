@@ -27,7 +27,7 @@
     <ClInclude Include="WinapiPortfolio.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Graphics\include\Graphics.h">
+    <ClInclude Include="D2DFramework\Graphics\include\Graphics.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Level\Level1.h">
@@ -36,43 +36,43 @@
     <ClInclude Include="Level\Dungeon.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Graphics\include\SpriteSheet.h">
+    <ClInclude Include="D2DFramework\Graphics\include\SpriteSheet.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Component\include\CollisionComponent.h">
+    <ClInclude Include="D2DFramework\Component\include\CollisionComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Component\include\Component.h">
+    <ClInclude Include="D2DFramework\Component\include\Component.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Component\include\SpriteRenderComponent.h">
+    <ClInclude Include="D2DFramework\Component\include\SpriteRenderComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Core\include\NonRenderObject.h">
+    <ClInclude Include="D2DFramework\Core\include\NonRenderObject.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Core\include\RenderObject.h">
+    <ClInclude Include="D2DFramework\Core\include\RenderObject.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Core\include\Singleton.h">
+    <ClInclude Include="D2DFramework\Core\include\Singleton.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Graphics\include\SpriteAtlas.h">
+    <ClInclude Include="D2DFramework\Graphics\include\SpriteAtlas.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Graphics\include\SpriteSheetAnimation.h">
+    <ClInclude Include="D2DFramework\Graphics\include\SpriteSheetAnimation.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Lib\include\json.hpp">
+    <ClInclude Include="D2DFramework\Lib\include\json.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Manager\include\DataManager.h">
+    <ClInclude Include="D2DFramework\Manager\include\DataManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Manager\include\SpriteSheetManager.h">
+    <ClInclude Include="D2DFramework\Manager\include\SpriteSheetManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Physics\include\CollisionCalc.h">
+    <ClInclude Include="D2DFramework\Physics\include\CollisionCalc.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -80,19 +80,19 @@
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Graphics\src\Graphics.cpp">
+    <ClCompile Include="D2DFramework\Graphics\src\Graphics.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Scene\include\GameLevel.h">
+    <ClCompile Include="D2DFramework\Scene\include\GameLevel.h">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Scene\src\GameLevel.cpp">
+    <ClCompile Include="D2DFramework\Scene\src\GameLevel.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Manager\include\SceneManager.h">
+    <ClCompile Include="D2DFramework\Manager\include\SceneManager.h">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Manager\src\SceneManager.cpp">
+    <ClCompile Include="D2DFramework\Manager\src\SceneManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Level\Level1.cpp">
@@ -101,37 +101,37 @@
     <ClCompile Include="Level\Dungeon.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Graphics\src\SpriteSheet.cpp">
+    <ClCompile Include="D2DFramework\Graphics\src\SpriteSheet.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Component\src\CollisionComponent.cpp">
+    <ClCompile Include="D2DFramework\Component\src\CollisionComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Component\src\Component.cpp">
+    <ClCompile Include="D2DFramework\Component\src\Component.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Component\src\SpriteRenderComponent.cpp">
+    <ClCompile Include="D2DFramework\Component\src\SpriteRenderComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Core\src\NonRenderObject.cpp">
+    <ClCompile Include="D2DFramework\Core\src\NonRenderObject.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Core\src\RenderObject.cpp">
+    <ClCompile Include="D2DFramework\Core\src\RenderObject.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Graphics\src\SpriteAtlas.cpp">
+    <ClCompile Include="D2DFramework\Graphics\src\SpriteAtlas.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Graphics\src\SpriteSheetAnimation.cpp">
+    <ClCompile Include="D2DFramework\Graphics\src\SpriteSheetAnimation.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Manager\src\DataManager.cpp">
+    <ClCompile Include="D2DFramework\Manager\src\DataManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Manager\src\SpriteSheetManager.cpp">
+    <ClCompile Include="D2DFramework\Manager\src\SpriteSheetManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Physics\src\CollisionCalc.cpp">
+    <ClCompile Include="D2DFramework\Physics\src\CollisionCalc.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

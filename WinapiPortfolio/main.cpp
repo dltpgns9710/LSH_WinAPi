@@ -4,14 +4,14 @@
 #include <memory>
 #include "framework.h"
 #include "WinapiPortfolio.h"
-#include "Framework/Graphics/include/Graphics.h"
-#include "Framework/Manager/include/SceneManager.h"
+#include "D2DFramework/Graphics/include/Graphics.h"
+#include "D2DFramework/Manager/include/SceneManager.h"
 
 #include <mmsystem.h> 
 #pragma comment(lib, "winmm.lib")
 
-#include "Framework/Manager/include/DataManager.h"
-#include "Framework/Manager/include/SpriteSheetManager.h"
+#include "D2DFramework/Manager/include/DataManager.h"
+#include "D2DFramework/Manager/include/SpriteSheetManager.h"
 #include "Level/Dungeon.h"
 
 #define MAX_LOADSTRING 100
