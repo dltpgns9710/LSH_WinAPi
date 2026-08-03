@@ -3,7 +3,7 @@
 #include "Vector3.h"
 #include "Vector4.h"
 
-// Column-vector convention: v' = M * v.
+// Column-vector(열벡터) convention: v' = M * v.
 // To apply A first, then B, compose as (B * A).
 struct Matrix4x4
 {
