@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
+    <ClInclude Include="D2DFramework\Camera\include\Camera.h" />
     <ClInclude Include="D2DFramework\Component\include\CollisionComponent.h" />
     <ClInclude Include="D2DFramework\Component\include\Component.h" />
     <ClInclude Include="D2DFramework\Component\include\SpriteRenderComponent.h" />
@@ -151,6 +152,9 @@
     <ClInclude Include="D2DFramework\Graphics\include\SpriteSheet.h" />
     <ClInclude Include="D2DFramework\Graphics\include\SpriteSheetAnimation.h" />
     <ClInclude Include="D2DFramework\Lib\include\json.hpp" />
+    <ClInclude Include="D2DFramework\Math\include\Matrix4x4.h" />
+    <ClInclude Include="D2DFramework\Math\include\Vector3.h" />
+    <ClInclude Include="D2DFramework\Math\include\Vector4.h" />
     <ClInclude Include="D2DFramework\Manager\include\DataManager.h" />
     <ClInclude Include="D2DFramework\Manager\include\SpriteSheetManager.h" />
     <ClInclude Include="D2DFramework\Physics\include\CollisionCalc.h" />
@@ -161,6 +165,7 @@
     <ClInclude Include="WinapiPortfolio.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="D2DFramework\Camera\src\Camera.cpp" />
     <ClCompile Include="D2DFramework\Component\src\CollisionComponent.cpp" />
     <ClCompile Include="D2DFramework\Component\src\Component.cpp" />
     <ClCompile Include="D2DFramework\Component\src\SpriteRenderComponent.cpp" />
@@ -170,6 +175,8 @@
     <ClCompile Include="D2DFramework\Graphics\src\SpriteSheet.cpp" />
     <ClCompile Include="D2DFramework\Graphics\src\SpriteSheetAnimation.cpp" />
     <ClCompile Include="D2DFramework\Manager\src\DataManager.cpp" />
+    <ClCompile Include="D2DFramework\Math\src\Matrix4x4.cpp" />
+    <ClCompile Include="D2DFramework\Math\src\Vector3.cpp" />
     <ClCompile Include="D2DFramework\Manager\src\SceneManager.cpp" />
     <ClCompile Include="D2DFramework\Manager\src\SpriteSheetManager.cpp" />
     <ClCompile Include="D2DFramework\Physics\src\CollisionCalc.cpp" />

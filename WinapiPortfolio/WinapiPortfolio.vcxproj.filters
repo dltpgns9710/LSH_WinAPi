@@ -75,6 +75,18 @@
     <ClInclude Include="D2DFramework\Physics\include\CollisionCalc.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="D2DFramework\Camera\include\Camera.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="D2DFramework\Math\include\Vector3.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="D2DFramework\Math\include\Vector4.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="D2DFramework\Math\include\Matrix4x4.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -132,6 +144,15 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="D2DFramework\Physics\src\CollisionCalc.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="D2DFramework\Camera\src\Camera.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="D2DFramework\Math\src\Vector3.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="D2DFramework\Math\src\Matrix4x4.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
