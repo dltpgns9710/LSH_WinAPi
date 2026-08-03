@@ -3,15 +3,25 @@
 #include "../../Core/include/NonRenderObject.h"
 #include "../../Component/include/CollisionComponent.h"
 #include "../../Physics/include/CollisionCalc.h"
+#include "../../Camera/include/Camera.h"
 
 std::shared_ptr<Graphics> GameLevel::graphics;
 
+GameLevel::GameLevel()
+{
+	camera = std::make_shared<Camera>();
+}
+
 void GameLevel::Render()
 {
+	if (camera) camera->Render();
+
+	/*
 	for (auto& renderObject : renderObjects)
 	{
 		renderObject->Render();
 	}
+	*/
 }
 
 void GameLevel::Update(double deltaTime)

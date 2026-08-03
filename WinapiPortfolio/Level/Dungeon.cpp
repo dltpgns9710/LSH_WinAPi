@@ -16,8 +16,9 @@ void Dungeon::UnLoad()
 
 void Dungeon::Render()
 {
-    super::Render();
     background->DrawSpriteAtlas(0,0,background->GetClientWidthSize(),background->GetClientHeightSize());
+    super::Render();
+    
     
     /*
     D2D1_BITMAP_PROPERTIES1 targetProps = D2D1::BitmapProperties1(

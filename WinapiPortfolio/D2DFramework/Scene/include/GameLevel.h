@@ -7,10 +7,13 @@
 #include "../../Core/include/RenderObject.h"
 
 class NonRenderObject;
+class Camera;
 
 class GameLevel
 {
 public:
+	GameLevel();
+
 	inline static void Init(std::shared_ptr<Graphics> gfx) { graphics = gfx; }
 
 	virtual void Load() = 0;
@@ -19,8 +22,11 @@ public:
 	virtual void Update(double deltaTime);
 	virtual void PostUpdate();
 
+	inline std::shared_ptr<Camera> GetCamera() const { return camera; }
+
 protected:
 	static std::shared_ptr<Graphics> graphics;
+	std::shared_ptr<Camera> camera;
 	std::vector<std::shared_ptr<RenderObject>> renderObjects;
 	std::vector<std::shared_ptr<NonRenderObject>> nonRenderObjects;
 
