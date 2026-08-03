@@ -6,6 +6,8 @@
 #include <wincodec.h>
 #pragma comment(lib, "windowscodecs.lib")
 
+#include "../../Math/include/Matrix4x4.h"
+
 class Graphics;
 struct ID2D1Bitmap1;
 
@@ -20,8 +22,8 @@ public:
 	bool IsValid() const { return bmp != nullptr; }
 
 	virtual void DrawSprite(float startX, float startY, float endX, float endY);
-	//void Draw();
-	//void DrawVer2();
+	void DrawSpriteWarped(const Matrix4x4& localToScreen);
+	std::shared_ptr<SpriteSheet> CreateSubRegion(float startX, float startY, float endX, float endY) const;
 
 	virtual float GetImageWidth();
 	virtual float GetImageHeight();

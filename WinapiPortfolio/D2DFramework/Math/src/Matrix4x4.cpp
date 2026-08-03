@@ -23,6 +23,31 @@ Matrix4x4 Matrix4x4::Translation(const Vector3& t)
 	} };
 }
 
+Matrix4x4 Matrix4x4::Scale(const Vector3& s)
+{
+	return Matrix4x4
+	{ {
+		{ s.x, 0.f, 0.f, 0.f },
+		{ 0.f, s.y, 0.f, 0.f },
+		{ 0.f, 0.f, s.z, 0.f },
+		{ 0.f, 0.f, 0.f, 1.f },
+	} };
+}
+
+Matrix4x4 Matrix4x4::RotationX(float radians)
+{
+	float s = std::sin(radians);
+	float c = std::cos(radians);
+
+	return Matrix4x4
+	{ {
+		{ 1.f, 0.f, 0.f, 0.f },
+		{ 0.f, c,   -s,  0.f },
+		{ 0.f, s,   c,   0.f },
+		{ 0.f, 0.f, 0.f, 1.f },
+	} };
+}
+
 Matrix4x4 Matrix4x4::RotationY(float radians)
 {
 	float s = std::sin(radians);
@@ -49,6 +74,20 @@ Matrix4x4 Matrix4x4::PerspectiveFovLH(float fov, float aspectRatio, float nearZ,
 		{ 0.f,             d,   0.f,    0.f },
 		{ 0.f,             0.f, zScale, zTranslate },
 		{ 0.f,             0.f, 1.f,    0.f },
+	} };
+}
+
+Matrix4x4 Matrix4x4::Viewport(float width, float height)
+{
+	float halfWidth = width * 0.5f;
+	float halfHeight = height * 0.5f;
+
+	return Matrix4x4
+	{ {
+		{ halfWidth, 0.f,        0.f, halfWidth },
+		{ 0.f,       -halfHeight, 0.f, halfHeight },
+		{ 0.f,       0.f,        1.f, 0.f },
+		{ 0.f,       0.f,        0.f, 1.f },
 	} };
 }
 

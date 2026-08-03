@@ -61,3 +61,8 @@ Matrix4x4 Camera::GetProjectionMatrix() const
 {
 	return Matrix4x4::PerspectiveFovLH(fov, aspectRatio, nearZ, farZ);
 }
+
+Matrix4x4 Camera::GetViewProjectionMatrix() const
+{
+	return GetProjectionMatrix() * GetViewMatrix();
+}

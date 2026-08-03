@@ -1,6 +1,7 @@
 ﻿#include <cassert>
 #include <Windows.h>
 #include <cmath>
+#include <d2d1effects.h>
 
 #include "../include/SpriteSheet.h"
 #include "../include/Graphics.h"
@@ -88,6 +89,48 @@ void SpriteSheet::DrawSpriteByRegion(
 		1.f,
 		D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
 		D2D1::RectF(srcStartX, srcStartY, srcEndX, srcEndY));
+}
+
+void SpriteSheet::DrawSpriteWarped(const Matrix4x4& localToScreen)
+{
+	// D2D1_MATRIX_4X4_F is interpreted with D2D's native row-vector convention (v' = v * M),
+	// while our Matrix4x4 uses column-vector convention (v' = M * v) -- transpose on conversion.
+	D2D1_MATRIX_4X4_F d2dMatrix{};
+	for (int row = 0; row < 4; ++row)
+	{
+		for (int col = 0; col < 4; ++col)
+		{
+			d2dMatrix.m[row][col] = localToScreen.m[col][row];
+		}
+	}
+
+	ComPtr<ID2D1Effect> transformEffect;
+	graphics->GetDeviceContext()->CreateEffect(CLSID_D2D13DTransform, &transformEffect);
+	transformEffect->SetInput(0, bmp.Get());
+	transformEffect->SetValue(D2D1_3DTRANSFORM_PROP_INTERPOLATION_MODE, D2D1_3DTRANSFORM_INTERPOLATION_MODE_LINEAR);
+	transformEffect->SetValue(D2D1_3DTRANSFORM_PROP_TRANSFORM_MATRIX, d2dMatrix);
+
+	graphics->GetDeviceContext()->DrawImage(transformEffect.Get());
+}
+
+std::shared_ptr<SpriteSheet> SpriteSheet::CreateSubRegion(float startX, float startY, float endX, float endY) const
+{
+	UINT32 width = static_cast<UINT32>(endX - startX);
+	UINT32 height = static_cast<UINT32>(endY - startY);
+
+	D2D1_BITMAP_PROPERTIES1 props = D2D1::BitmapProperties1(
+		D2D1_BITMAP_OPTIONS_NONE,
+		D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED));
+
+	ComPtr<ID2D1Bitmap1> subBitmap;
+	graphics->GetDeviceContext()->CreateBitmap(D2D1::SizeU(width, height), nullptr, 0, props, &subBitmap);
+
+	D2D1_RECT_U srcRect = D2D1::RectU(
+		static_cast<UINT32>(startX), static_cast<UINT32>(startY),
+		static_cast<UINT32>(endX), static_cast<UINT32>(endY));
+	subBitmap->CopyFromBitmap(nullptr, bmp.Get(), &srcRect);
+
+	return std::shared_ptr<SpriteSheet>(new SpriteSheet(graphics, subBitmap));
 }
 /*
 void SpriteSheet::DrawVer2()
