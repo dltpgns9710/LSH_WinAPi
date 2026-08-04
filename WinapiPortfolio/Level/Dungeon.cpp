@@ -10,13 +10,14 @@
 namespace
 {
     constexpr float kHalfPi = 1.5707963f;
-    constexpr float kTileSize = 300.f;
+    constexpr float kTileSize = 400.f;
     constexpr int kGridSizeX = 10;
-    constexpr int kGridSizeZ = 3;
+    constexpr int kGridSizeZ = 8;
     constexpr float kGridStartX = -400.f;
     constexpr float kGridStartZ = 100.f;
     // 카메라가 X축 기준 타일 격자 중앙에 오도록.
-    constexpr float kCameraX = kGridStartX + (kGridSizeX * kTileSize) / 2.f;
+    constexpr float kCameraX = kTileSize/2 + kGridStartX + (kGridSizeX * kTileSize) / 2.f;
+    constexpr float kCameraZ = kTileSize/2 + kGridSizeZ + (kGridSizeZ * kTileSize) / 2.f;
 }
 
 void Dungeon::Load()
@@ -47,7 +48,7 @@ void Dungeon::Load()
         }
     }
 
-    GetCamera()->SetPosition(Vector3(kCameraX, 150.f, 50.f));
+    GetCamera()->SetPosition(Vector3(kCameraX, 100.f, kCameraZ));
 }
 
 void Dungeon::UnLoad()
@@ -59,7 +60,7 @@ void Dungeon::Render()
     background->DrawSpriteAtlas(0,0,background->GetClientWidthSize(),background->GetClientHeightSize());
     super::Render();
 
-    Matrix4x4 viewProj = GetCamera()->GetViewProjectionMatrix();
+    Matrix4x4 viewProj = GetCamera()->GetViewProjectionMatrix(b);
     Matrix4x4 viewport = Matrix4x4::Viewport(background->GetClientWidthSize(), background->GetClientHeightSize());
 
     for (const FloorTileInstance& tile : floorGrid)
@@ -80,4 +81,9 @@ void Dungeon::Render()
 void Dungeon::Update(double deltaTime)
 {
     super::Update(deltaTime);
+    
+    if (GetCamera()->GetPosition().z > 1150) a = -1;
+    else if (GetCamera()->GetPosition().z < 50) a = 1;
+    //GetCamera()->MoveZ(50.f * deltaTime * a);
+    b += 0.1 * deltaTime;
 }

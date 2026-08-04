@@ -7,8 +7,11 @@
 #include "D2DFramework/Graphics/include/Graphics.h"
 #include "D2DFramework/Manager/include/SceneManager.h"
 
-#include <mmsystem.h> 
+#include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
+
+#include <dwrite.h>
+#pragma comment(lib, "dwrite.lib")
 
 #include "D2DFramework/Manager/include/DataManager.h"
 #include "D2DFramework/Manager/include/SpriteSheetManager.h"
@@ -62,6 +65,23 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     GameLevel::Init(graphics);
     SceneManager::GetInstance().Init();
     SceneManager::GetInstance().LoadInitialLevel(std::make_shared<Dungeon>());
+
+    // FPS 표시용 DirectWrite 리소스
+    ComPtr<IDWriteFactory> fpsDWriteFactory;
+    ComPtr<IDWriteTextFormat> fpsTextFormat;
+    ComPtr<ID2D1SolidColorBrush> fpsBrush;
+
+    DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
+        reinterpret_cast<IUnknown**>(fpsDWriteFactory.GetAddressOf()));
+    fpsDWriteFactory->CreateTextFormat(L"Consolas", nullptr,
+        DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+        16.0f, L"en-us", fpsTextFormat.GetAddressOf());
+    graphics->GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow), fpsBrush.GetAddressOf());
+
+    double fpsTimer = 0.0;
+    int fpsFrameCount = 0;
+    double fps = 0.0;
+    // FPS 표시용 DirectWrite 리소스 끝
     
     MSG msg;
     msg.message = WM_NULL;
@@ -77,15 +97,33 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         QueryPerformanceCounter(&now);
         double deltaTime = (double)(now.QuadPart - prev.QuadPart) / freq.QuadPart;
 
+        // FPS 계산 (0.5초마다 갱신)
+        fpsFrameCount++;
+        fpsTimer += deltaTime;
+        if (fpsTimer >= 0.5)
+        {
+            fps = fpsFrameCount / fpsTimer;
+            fpsFrameCount = 0;
+            fpsTimer = 0.0;
+        }// FPS 계산 (0.5초마다 갱신) 끝
+
         //Update
         SceneManager::GetInstance().Update(deltaTime);
 
         //PostUpdate
         SceneManager::GetInstance().PostUpdate();
-        
+
         //Render
         graphics->BeginDraw();
         SceneManager::GetInstance().Render();
+
+        // FPS 표시
+        wchar_t fpsText[32];
+        swprintf_s(fpsText, L"FPS: %.1f", fps);
+        graphics->GetDeviceContext()->DrawText(
+            fpsText, (UINT32)wcslen(fpsText), fpsTextFormat.Get(),
+            D2D1::RectF(10.0f, 10.0f, 200.0f, 40.0f), fpsBrush.Get());
+        // FPS 표시 끝
         graphics->EndDraw();
 
         prev = now;

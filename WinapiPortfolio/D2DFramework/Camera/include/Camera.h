@@ -24,6 +24,7 @@ public:
 	Matrix4x4 GetViewMatrix() const;
 	Matrix4x4 GetProjectionMatrix() const;
 	Matrix4x4 GetViewProjectionMatrix() const;
+	Matrix4x4 GetViewProjectionMatrix(float b) const;
 
 private:
 	Vector3 position = Vector3(0.f, 0.f, 0.f);

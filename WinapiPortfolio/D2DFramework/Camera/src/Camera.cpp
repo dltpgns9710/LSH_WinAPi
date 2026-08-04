@@ -64,5 +64,10 @@ Matrix4x4 Camera::GetProjectionMatrix() const
 
 Matrix4x4 Camera::GetViewProjectionMatrix() const
 {
-	return GetProjectionMatrix() * GetViewMatrix();
+	return GetProjectionMatrix() * +GetViewMatrix();
+}
+
+Matrix4x4 Camera::GetViewProjectionMatrix(float b) const
+{
+	return GetProjectionMatrix() * Matrix4x4::RotationY(b) * GetViewMatrix();
 }
