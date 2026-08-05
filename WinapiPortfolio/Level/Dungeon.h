@@ -6,6 +6,8 @@
 
 struct FloorTileInstance
 {
+    static constexpr float kTileSize = 400.f;
+
     Vector3 position;
     int tileIndex;
 };

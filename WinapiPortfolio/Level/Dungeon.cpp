@@ -10,14 +10,13 @@
 namespace
 {
     constexpr float kHalfPi = 1.5707963f;
-    constexpr float kTileSize = 400.f;
     constexpr int kGridSizeX = 100;
     constexpr int kGridSizeZ = 100;
     constexpr float kGridStartX = -400.f;
     constexpr float kGridStartZ = 100.f;
     // 카메라가 X축 기준 타일 격자 중앙에 오도록.
-    constexpr float kCameraX = kTileSize/2 + kGridStartX + (kGridSizeX * kTileSize) / 2.f;
-    constexpr float kCameraZ = kTileSize/2 + kGridSizeZ + (kGridSizeZ * kTileSize) / 2.f;
+    constexpr float kCameraX = FloorTileInstance::kTileSize/2 + kGridStartX + (kGridSizeX * FloorTileInstance::kTileSize) / 2.f;
+    constexpr float kCameraZ = FloorTileInstance::kTileSize/2 + kGridSizeZ + (kGridSizeZ * FloorTileInstance::kTileSize) / 2.f;
 }
 
 void Dungeon::Load()
@@ -42,7 +41,7 @@ void Dungeon::Load()
         for (int j = 0; j < kGridSizeZ; ++j)
         {
             FloorTileInstance tile;
-            tile.position = Vector3(kGridStartX + i * kTileSize, 0.f, kGridStartZ + j * kTileSize);
+            tile.position = Vector3(kGridStartX + i * FloorTileInstance::kTileSize, 0.f, kGridStartZ + j * FloorTileInstance::kTileSize);
             tile.tileIndex = std::rand() % 2;
             floorGrid.push_back(tile);
         }
@@ -73,7 +72,7 @@ void Dungeon::Render()
         // (Y 출력을 그냥 0으로 고정하면 행렬이 특이(singular)해져 3D 워프 이펙트가 아무것도 못 그린다.)
         Matrix4x4 model = Matrix4x4::Translation(tile.position)
             * Matrix4x4::RotationX(kHalfPi)
-            * Matrix4x4::Scale(Vector3(kTileSize / sprite->GetImageWidth(), kTileSize / sprite->GetImageHeight(), 1.f));
+            * Matrix4x4::Scale(Vector3(FloorTileInstance::kTileSize / sprite->GetImageWidth(), FloorTileInstance::kTileSize / sprite->GetImageHeight(), 1.f));
         Matrix4x4 final = viewport * viewProj * model;
 
         sprite->DrawSpriteWarped(final);

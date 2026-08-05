@@ -30,6 +30,7 @@ public:
 	Matrix4x4 GetViewProjectionMatrix(float b) const;
 
 	bool isRenderPosition(const Vector3 targetPosition);
+	bool isRenderTile(const struct FloorTileInstance& targetTile);
 private:
 	void InitPlanes();
 	

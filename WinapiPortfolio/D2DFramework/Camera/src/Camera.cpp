@@ -3,6 +3,8 @@
 
 #include <cmath>
 
+#include "../../../Level/Dungeon.h"
+
 namespace
 {
 	constexpr float kPi = 3.14159265358979323846f;
@@ -82,15 +84,35 @@ bool Camera::isRenderPosition(const Vector3 targetPosition)
 {
 	Vector3 localPosition = targetPosition - position;
 	
+	//1차
 	float offset = farZ * 0.2f;
 	if (localPosition.z  >= farZ+offset || localPosition.z <= nearZ-offset) return false;
-	if (localPosition.x  >= farZ+offset || localPosition.x <= nearZ-offset) return false;
+	if (localPosition.x  >= farZ+offset || localPosition.x <= -farZ-offset) return false;
 	
-	for (auto plane : planes)
-	{
-		if (plane.CheckSide(localPosition) == PlaneSide::Outside) return false;
-	}
 	return true;
+}
+
+bool Camera::isRenderTile(const struct FloorTileInstance& targetTile)
+{
+	if (!isRenderPosition(targetTile.position)) return false;
+	
+	Vector3 localPosition = targetTile.position - position;
+	float halfSize = targetTile.kTileSize/2;
+	std::vector<Vector3> vertexs;
+	vertexs.push_back(Vector3(targetTile.position.x-halfSize, targetTile.position.y, targetTile.position.z-halfSize));
+	vertexs.push_back(Vector3(targetTile.position.x-halfSize, targetTile.position.y, targetTile.position.z+halfSize));
+	vertexs.push_back(Vector3(targetTile.position.x+halfSize, targetTile.position.y, targetTile.position.z-halfSize));
+	vertexs.push_back(Vector3(targetTile.position.x+halfSize, targetTile.position.y, targetTile.position.z+halfSize));
+	
+	for (auto vertex : vertexs)
+	{
+		for (auto plane : planes)
+		{
+			if (plane.CheckSide(vertex) == PlaneSide::Outside) return false;
+		}
+	}
+	
+	return false;
 }
 
 void Camera::InitPlanes()
