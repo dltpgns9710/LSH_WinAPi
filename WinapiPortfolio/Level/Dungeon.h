@@ -26,6 +26,4 @@ private:
     std::shared_ptr<class SpriteSheet> floorTiles[2];
     std::vector<FloorTileInstance> floorGrid;
     
-    int a = 1;
-    float b = 0.f;
 };

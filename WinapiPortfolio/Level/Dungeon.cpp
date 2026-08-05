@@ -15,8 +15,8 @@ namespace
     constexpr float kGridStartX = -400.f;
     constexpr float kGridStartZ = 100.f;
     // 카메라가 X축 기준 타일 격자 중앙에 오도록.
-    constexpr float kCameraX = FloorTileInstance::kTileSize/2 + kGridStartX + (kGridSizeX * FloorTileInstance::kTileSize) / 2.f;
-    constexpr float kCameraZ = FloorTileInstance::kTileSize/2 + kGridSizeZ + (kGridSizeZ * FloorTileInstance::kTileSize) / 2.f;
+    constexpr float kCameraX = FloorTileInstance::kTileSize/2 + (kGridSizeX * FloorTileInstance::kTileSize) / 2.f;
+    constexpr float kCameraZ = FloorTileInstance::kTileSize/2 + (kGridSizeZ * FloorTileInstance::kTileSize) / 2.f;
 }
 
 void Dungeon::Load()
@@ -59,12 +59,13 @@ void Dungeon::Render()
     background->DrawSpriteAtlas(0,0,background->GetClientWidthSize(),background->GetClientHeightSize());
     super::Render();
 
-    Matrix4x4 viewProj = GetCamera()->GetViewProjectionMatrix(b);
+    Matrix4x4 viewProj = GetCamera()->GetViewProjectionMatrix();
     Matrix4x4 viewport = Matrix4x4::Viewport(background->GetClientWidthSize(), background->GetClientHeightSize());
 
     for (const FloorTileInstance& tile : floorGrid)
     {
-        if (!GetCamera()->isRenderPosition(tile.position)) continue;
+        //if (!GetCamera()->isRenderPosition(tile.position)) continue;
+        if (!GetCamera()->isRenderTile(tile)) continue;
             
         std::shared_ptr<SpriteSheet>& sprite = floorTiles[tile.tileIndex];
 
@@ -83,8 +84,7 @@ void Dungeon::Update(double deltaTime)
 {
     super::Update(deltaTime);
     
-    if (GetCamera()->GetPosition().z > 1150) a = -1;
-    else if (GetCamera()->GetPosition().z < 50) a = 1;
+    GetCamera()->RotateCameraRadian(deltaTime);
     //GetCamera()->MoveZ(50.f * deltaTime * a);
-    b += 1 * deltaTime;
+    //b += 1 * deltaTime;
 }

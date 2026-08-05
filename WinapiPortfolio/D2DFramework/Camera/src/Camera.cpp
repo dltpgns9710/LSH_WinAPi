@@ -61,7 +61,7 @@ void Camera::Render()
 
 Matrix4x4 Camera::GetViewMatrix() const
 {
-	return Matrix4x4::Translation(position * -1.f);
+	return Matrix4x4::RotationY(theta) * Matrix4x4::Translation(position * -1.f);
 }
 
 Matrix4x4 Camera::GetProjectionMatrix() const
@@ -74,45 +74,65 @@ Matrix4x4 Camera::GetViewProjectionMatrix() const
 	return GetProjectionMatrix() * GetViewMatrix();
 }
 
-Matrix4x4 Camera::GetViewProjectionMatrix(float b) const
-{
-	//return GetProjectionMatrix() * GetViewMatrix();
-	return GetProjectionMatrix() * Matrix4x4::RotationY(b) * GetViewMatrix();
-}
-
 bool Camera::isRenderPosition(const Vector3 targetPosition)
 {
 	Vector3 localPosition = targetPosition - position;
-	
+
+	// GetViewMatrix()의 RotationY(theta)와 동일하게 점을 회전시켜 카메라가 보는 방향(+Z)을 기준으로 맞춘다.
+	float c = std::cos(theta);
+	float s = std::sin(theta);
+	Vector3 viewLocalPosition(c * localPosition.x + s * localPosition.z, localPosition.y, -s * localPosition.x + c * localPosition.z);
+
 	//1차
 	float offset = farZ * 0.2f;
-	if (localPosition.z  >= farZ+offset || localPosition.z <= nearZ-offset) return false;
-	if (localPosition.x  >= farZ+offset || localPosition.x <= -farZ-offset) return false;
-	
+	if (viewLocalPosition.z  >= farZ+offset || viewLocalPosition.z <= nearZ-offset) return false;
+	if (viewLocalPosition.x  >= farZ+offset || viewLocalPosition.x <= -farZ-offset) return false;
+
 	return true;
 }
 
-bool Camera::isRenderTile(const struct FloorTileInstance& targetTile)
+bool Camera::isRenderTile(const FloorTileInstance& targetTile)
 {
 	if (!isRenderPosition(targetTile.position)) return false;
-	
+
 	Vector3 localPosition = targetTile.position - position;
-	float halfSize = targetTile.kTileSize/2;
 	std::vector<Vector3> vertexs;
-	vertexs.push_back(Vector3(targetTile.position.x-halfSize, targetTile.position.y, targetTile.position.z-halfSize));
-	vertexs.push_back(Vector3(targetTile.position.x-halfSize, targetTile.position.y, targetTile.position.z+halfSize));
-	vertexs.push_back(Vector3(targetTile.position.x+halfSize, targetTile.position.y, targetTile.position.z-halfSize));
-	vertexs.push_back(Vector3(targetTile.position.x+halfSize, targetTile.position.y, targetTile.position.z+halfSize));
+	vertexs.push_back(Vector3(localPosition.x, localPosition.y, localPosition.z));
+	vertexs.push_back(Vector3(localPosition.x, localPosition.y, localPosition.z+targetTile.kTileSize));
+	vertexs.push_back(Vector3(localPosition.x+targetTile.kTileSize, localPosition.y, localPosition.z));
+	vertexs.push_back(Vector3(localPosition.x+targetTile.kTileSize, localPosition.y, localPosition.z+targetTile.kTileSize));
 	
-	for (auto vertex : vertexs)
+	for (const auto& vertex : vertexs)
 	{
-		for (auto plane : planes)
+		bool insideAllPlanes = true;
+		for (const auto& plane : planes)
 		{
-			if (plane.CheckSide(vertex) == PlaneSide::Outside) return false;
+			if (plane.CheckSide(vertex) == PlaneSide::Outside)
+			{
+				insideAllPlanes = false;
+				break;
+			}
 		}
+		if (insideAllPlanes) return true;
 	}
-	
+
 	return false;
+}
+
+void Camera::RotateCameraRadian(float radian)
+{
+	theta += radian;
+	
+	if (planes.empty()) return;
+	for (auto& plane : planes)
+	{
+		plane.RotatePlane(-radian);
+	}
+}
+
+void Camera::RotateCameraDegree(float degree)
+{
+	RotateCameraRadian(DegreesToRadians(degree));
 }
 
 void Camera::InitPlanes()
@@ -130,10 +150,12 @@ void Camera::InitPlanes()
 	planes.push_back(upPlane);
 	Plane downPlane = Plane(Vector3(0,-c,-s), 0);
 	planes.push_back(downPlane);
-	/*Plane rightPlane = Plane(Vector3(c,0,-s), 0);
+	/*
+	Plane rightPlane = Plane(Vector3(c,0,-s), 0);
 	planes.push_back(rightPlane);
 	Plane leftPlane = Plane(Vector3(-c,0,-s), 0);
-	planes.push_back(leftPlane);*/
+	planes.push_back(leftPlane);
+	*/
 	
 	float hFov = std::atan(std::tan(fov / 2) * aspectRatio);
 	float sh = std::sin(hFov);

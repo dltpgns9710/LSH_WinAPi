@@ -27,10 +27,12 @@ public:
 	Matrix4x4 GetViewMatrix() const;
 	Matrix4x4 GetProjectionMatrix() const;
 	Matrix4x4 GetViewProjectionMatrix() const;
-	Matrix4x4 GetViewProjectionMatrix(float b) const;
 
 	bool isRenderPosition(const Vector3 targetPosition);
 	bool isRenderTile(const struct FloorTileInstance& targetTile);
+	
+	void RotateCameraRadian(float radian);
+	void RotateCameraDegree(float degree);
 private:
 	void InitPlanes();
 	
@@ -41,4 +43,6 @@ private:
 	float aspectRatio;
 	float nearZ;
 	float farZ;
+	
+	float theta = 0; //radian
 };

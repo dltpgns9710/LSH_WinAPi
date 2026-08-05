@@ -16,4 +16,5 @@ struct Plane
     float d;
     
     PlaneSide CheckSide(const Vector3& point) const;
+    void RotatePlane(const float radian);
 };
