@@ -10,8 +10,8 @@
 namespace
 {
     constexpr float kHalfPi = 1.5707963f;
-    constexpr int kGridSizeX = 100;
-    constexpr int kGridSizeZ = 100;
+    constexpr int kGridSizeX = 500;
+    constexpr int kGridSizeZ = 300;
     constexpr float kGridStartX = -400.f;
     constexpr float kGridStartZ = 100.f;
     // 카메라가 X축 기준 타일 격자 중앙에 오도록.
@@ -64,8 +64,8 @@ void Dungeon::Render()
 
     for (const FloorTileInstance& tile : floorGrid)
     {
-        //if (!GetCamera()->isRenderPosition(tile.position)) continue;
-        if (!GetCamera()->isRenderTile(tile)) continue;
+        if (!GetCamera()->isRenderPosition(tile.position)) continue;
+        //if (!GetCamera()->isRenderTile(tile)) continue;
             
         std::shared_ptr<SpriteSheet>& sprite = floorTiles[tile.tileIndex];
 
@@ -84,7 +84,8 @@ void Dungeon::Update(double deltaTime)
 {
     super::Update(deltaTime);
     
-    GetCamera()->RotateCameraRadian(deltaTime);
+    //GetCamera()->RotateCameraRadian(0.008f);
+    GetCamera()->RotateCameraDegree(10*deltaTime);
     //GetCamera()->MoveZ(50.f * deltaTime * a);
     //b += 1 * deltaTime;
 }

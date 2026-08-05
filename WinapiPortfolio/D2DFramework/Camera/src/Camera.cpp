@@ -16,7 +16,7 @@ namespace
 }
 
 Camera::Camera()
-	: Camera(Vector3(0.f, 0.f, 0.f), 70.f, 16.f / 9.f, 20.f, 2000.f){}
+	: Camera(Vector3(0.f, 0.f, 0.f), 70.f, 1920.f / 1080.f, 20.f, 2000.f){}
 
 Camera::Camera(const Vector3& position, float fovDegrees, float aspectRatio, float nearZ, float farZ)
 	: position(position), fov(DegreesToRadians(fovDegrees)), aspectRatio(aspectRatio), nearZ(nearZ), farZ(farZ)
@@ -142,7 +142,6 @@ void Camera::InitPlanes()
 	
 	Plane nearPlane = Plane(Vector3(0,0,-1), nearZ);
 	planes.push_back(nearPlane);
-	
 	Plane farPlane = Plane(Vector3(0,0,1), -farZ);
 	planes.push_back(farPlane);
 	
@@ -150,13 +149,13 @@ void Camera::InitPlanes()
 	planes.push_back(upPlane);
 	Plane downPlane = Plane(Vector3(0,-c,-s), 0);
 	planes.push_back(downPlane);
-	/*
+	
 	Plane rightPlane = Plane(Vector3(c,0,-s), 0);
 	planes.push_back(rightPlane);
 	Plane leftPlane = Plane(Vector3(-c,0,-s), 0);
 	planes.push_back(leftPlane);
-	*/
 	
+	/*
 	float hFov = std::atan(std::tan(fov / 2) * aspectRatio);
 	float sh = std::sin(hFov);
 	float ch = std::cos(hFov);
@@ -164,4 +163,5 @@ void Camera::InitPlanes()
 	planes.push_back(rightPlane);
 	Plane leftPlane = Plane(Vector3(-ch,0,-sh), 0);
 	planes.push_back(leftPlane);
+	*/
 }
