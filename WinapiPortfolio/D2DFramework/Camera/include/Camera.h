@@ -1,7 +1,10 @@
 #pragma once
 
+#include <vector>
+
 #include "../../Math/include/Vector3.h"
 #include "../../Math/include/Matrix4x4.h"
+#include "../../Math/include/Plane.h"
 
 class Camera
 {
@@ -26,11 +29,15 @@ public:
 	Matrix4x4 GetViewProjectionMatrix() const;
 	Matrix4x4 GetViewProjectionMatrix(float b) const;
 
+	bool isRenderPosition(const Vector3 targetPosition);
 private:
-	Vector3 position = Vector3(0.f, 0.f, 0.f);
+	void InitPlanes();
+	
+	std::vector<Plane> planes;
+	Vector3 position;
 
-	float fov = 1.2f;
-	float aspectRatio = 16.f / 9.f;
-	float nearZ = 20.f;
-	float farZ = 500.f;
+	float fov;
+	float aspectRatio;
+	float nearZ;
+	float farZ;
 };

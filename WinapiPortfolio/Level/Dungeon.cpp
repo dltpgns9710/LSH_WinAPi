@@ -11,8 +11,8 @@ namespace
 {
     constexpr float kHalfPi = 1.5707963f;
     constexpr float kTileSize = 400.f;
-    constexpr int kGridSizeX = 10;
-    constexpr int kGridSizeZ = 8;
+    constexpr int kGridSizeX = 100;
+    constexpr int kGridSizeZ = 100;
     constexpr float kGridStartX = -400.f;
     constexpr float kGridStartZ = 100.f;
     // 카메라가 X축 기준 타일 격자 중앙에 오도록.
@@ -65,6 +65,8 @@ void Dungeon::Render()
 
     for (const FloorTileInstance& tile : floorGrid)
     {
+        if (!GetCamera()->isRenderPosition(tile.position)) continue;
+            
         std::shared_ptr<SpriteSheet>& sprite = floorTiles[tile.tileIndex];
 
         // 평평한 비트맵 평면(로컬 z=0)을 90도 눕혀서 XZ 바닥 평면에 놓는다.
@@ -85,5 +87,5 @@ void Dungeon::Update(double deltaTime)
     if (GetCamera()->GetPosition().z > 1150) a = -1;
     else if (GetCamera()->GetPosition().z < 50) a = 1;
     //GetCamera()->MoveZ(50.f * deltaTime * a);
-    b += 0.1 * deltaTime;
+    b += 1 * deltaTime;
 }
