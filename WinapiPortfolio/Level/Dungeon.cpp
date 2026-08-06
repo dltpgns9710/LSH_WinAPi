@@ -2,20 +2,23 @@
 
 #include <cstdlib>
 #include <ctime>
+#include <limits>
 
 #include "../D2DFramework/Graphics/include/SpriteAtlas.h"
 #include "../D2DFramework/Manager/include/SpriteSheetManager.h"
 #include "../D2DFramework/Camera/include/Camera.h"
+#include "../D2DFramework/Manager/include/InputManager.h"
+#include "../D2DFramework/Math/include/MathUtil.h"
 
 namespace
 {
-    constexpr float kHalfPi = 1.5707963f;
+    constexpr float kHalfPi = static_cast<float>(MathUtil::pi / 2.0);
     constexpr int kGridSizeX = 500;
     constexpr int kGridSizeZ = 300;
     constexpr float kGridStartX = -400.f;
     constexpr float kGridStartZ = 100.f;
     // 카메라가 X축 기준 타일 격자 중앙에 오도록.
-    constexpr float kCameraX = FloorTileInstance::kTileSize/2 + (kGridSizeX * FloorTileInstance::kTileSize) / 2.f;
+    constexpr float kCameraX = (kGridSizeX * FloorTileInstance::kTileSize) / 2.f;
     constexpr float kCameraZ = FloorTileInstance::kTileSize/2 + (kGridSizeZ * FloorTileInstance::kTileSize) / 2.f;
 }
 
@@ -48,6 +51,7 @@ void Dungeon::Load()
     }
 
     GetCamera()->SetPosition(Vector3(kCameraX, 100.f, kCameraZ));
+    //GetCamera()->SetPosition(Vector3(kCameraX, 100.f, 100.f));
 }
 
 void Dungeon::UnLoad()
@@ -59,23 +63,26 @@ void Dungeon::Render()
     background->DrawSpriteAtlas(0,0,background->GetClientWidthSize(),background->GetClientHeightSize());
     super::Render();
 
-    Matrix4x4 viewProj = GetCamera()->GetViewProjectionMatrix();
+    Matrix4x4 cameraView = GetCamera()->GetViewMatrix();
+    Matrix4x4 cameraProj = GetCamera()->GetProjectionMatrix();
     Matrix4x4 viewport = Matrix4x4::Viewport(background->GetClientWidthSize(), background->GetClientHeightSize());
 
     for (const FloorTileInstance& tile : floorGrid)
     {
-        if (!GetCamera()->isRenderPosition(tile.position)) continue;
-        //if (!GetCamera()->isRenderTile(tile)) continue;
+        if (!GetCamera()->isRenderTile(tile)) continue;
             
         std::shared_ptr<SpriteSheet>& sprite = floorTiles[tile.tileIndex];
 
-        // 평평한 비트맵 평면(로컬 z=0)을 90도 눕혀서 XZ 바닥 평면에 놓는다.
-        // (Y 출력을 그냥 0으로 고정하면 행렬이 특이(singular)해져 3D 워프 이펙트가 아무것도 못 그린다.)
         Matrix4x4 model = Matrix4x4::Translation(tile.position)
             * Matrix4x4::RotationX(kHalfPi)
             * Matrix4x4::Scale(Vector3(FloorTileInstance::kTileSize / sprite->GetImageWidth(), FloorTileInstance::kTileSize / sprite->GetImageHeight(), 1.f));
-        Matrix4x4 final = viewport * viewProj * model;
-
+        
+        Matrix4x4 modelView = cameraView * model;                                                                                                                                              
+                                                    
+        const float EPSILON = 1e-5f;
+        if (std::abs(modelView.m[2][3]) < EPSILON) modelView.m[2][3] = -EPSILON;                                                                                                                                                                                   
+        Matrix4x4 final = viewport * cameraProj * modelView;
+        
         sprite->DrawSpriteWarped(final);
     }
 }
@@ -83,9 +90,18 @@ void Dungeon::Render()
 void Dungeon::Update(double deltaTime)
 {
     super::Update(deltaTime);
+    GetCamera()->Update(deltaTime);
+    if (InputManager::GetInstance().GetButtonDown(KeyType::W)) GetCamera()->moveRequest(EMoveDirection::Forward);
+    if (InputManager::GetInstance().GetButtonDown(KeyType::S)) GetCamera()->moveRequest(EMoveDirection::Backward);
+    if (InputManager::GetInstance().GetButtonDown(KeyType::Q)) GetCamera()->moveRequest(EMoveDirection::Left);
+    if (InputManager::GetInstance().GetButtonDown(KeyType::E)) GetCamera()->moveRequest(EMoveDirection::Right);
+    if (InputManager::GetInstance().GetButtonDown(KeyType::A)) GetCamera()->rotateRequest(ERotateDirection::Left);
+    if (InputManager::GetInstance().GetButtonDown(KeyType::D)) GetCamera()->rotateRequest(ERotateDirection::Right);
     
-    //GetCamera()->RotateCameraRadian(0.008f);
-    GetCamera()->RotateCameraDegree(10*deltaTime);
-    //GetCamera()->MoveZ(50.f * deltaTime * a);
-    //b += 1 * deltaTime;
+    //if (InputManager::GetInstance().GetButtonPressed(KeyType::W)) GetCamera()->MoveZ(100.f*deltaTime);
+    //if (InputManager::GetInstance().GetButtonPressed(KeyType::S)) GetCamera()->MoveZ(-100.f*deltaTime);
+    //if (InputManager::GetInstance().GetButtonPressed(KeyType::Q)) GetCamera()->MoveX(-100.f*deltaTime);
+    //if (InputManager::GetInstance().GetButtonPressed(KeyType::E)) GetCamera()->MoveX(100.f*deltaTime);
+    //if (InputManager::GetInstance().GetButtonPressed(KeyType::A)) GetCamera()->RotateCameraDegree(10.f*deltaTime);
+    //if (InputManager::GetInstance().GetButtonPressed(KeyType::D)) GetCamera()->RotateCameraDegree(-10.f*deltaTime);
 }

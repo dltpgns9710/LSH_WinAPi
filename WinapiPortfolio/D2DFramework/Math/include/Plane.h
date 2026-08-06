@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Vector3.h"
 
-enum class PlaneSide
+enum class EPlaneSide
 {
     Inside,      //내부
     Outside,     //외부
@@ -15,6 +15,11 @@ struct Plane
     Vector3 normalVector;
     float d;
     
-    PlaneSide CheckSide(const Vector3& point) const;
+    EPlaneSide CheckSide(const Vector3& point) const;
     void RotatePlane(const float radian);
+    void RotateFromBaseWithRadian(const float radian);
+    void RotateFromBaseWithDegree(const float degree);
+    
+private:
+    Vector3 baseNormalVector;
 };

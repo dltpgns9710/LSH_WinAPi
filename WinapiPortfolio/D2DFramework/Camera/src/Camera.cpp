@@ -4,22 +4,13 @@
 #include <cmath>
 
 #include "../../../Level/Dungeon.h"
-
-namespace
-{
-	constexpr float kPi = 3.14159265358979323846f;
-
-	constexpr float DegreesToRadians(float degrees)
-	{
-		return degrees * (kPi / 180.f);
-	}
-}
+#include "../../Math/include/MathUtil.h"
 
 Camera::Camera()
 	: Camera(Vector3(0.f, 0.f, 0.f), 70.f, 1920.f / 1080.f, 20.f, 2000.f){}
 
 Camera::Camera(const Vector3& position, float fovDegrees, float aspectRatio, float nearZ, float farZ)
-	: position(position), fov(DegreesToRadians(fovDegrees)), aspectRatio(aspectRatio), nearZ(nearZ), farZ(farZ)
+	: position(position), fov(MathUtil::DegToRad(fovDegrees)), aspectRatio(aspectRatio), nearZ(nearZ), farZ(farZ)
 {
 	InitPlanes();
 }
@@ -36,7 +27,7 @@ void Camera::SetAspectRatio(float newAspectRatio)
 
 void Camera::SetFov(float fovDegrees)
 {
-	fov = DegreesToRadians(fovDegrees);
+	fov = MathUtil::DegToRad(fovDegrees);
 }
 
 void Camera::SetNearFar(float newNearZ, float newFarZ)
@@ -59,6 +50,36 @@ void Camera::Render()
 {
 }
 
+void Camera::Update(double deltaTime)
+{
+	if (cameraState == ECameraState::move)
+	{
+		elapsedTime += deltaTime;
+		if (elapsedTime >= 1.0f)
+		{
+			position = targetPosition;
+			cameraState = ECameraState::idle;
+			elapsedTime = 0.0f;
+		}
+		else position = MathUtil::Lerp(position, targetPosition, elapsedTime);
+	}
+	else if (cameraState == ECameraState::rotate)
+	{
+		elapsedTime += deltaTime;
+		if (elapsedTime >= 1.0f)
+		{
+			theta = targetTheta;
+			cameraState = ECameraState::idle;
+			elapsedTime = 0.0f;
+		}
+		else theta = MathUtil::Lerp(theta, targetTheta, elapsedTime);
+		for (auto& plane : planes)
+		{
+			plane.RotateFromBaseWithRadian(-theta);
+		}
+	}
+}
+
 Matrix4x4 Camera::GetViewMatrix() const
 {
 	return Matrix4x4::RotationY(theta) * Matrix4x4::Translation(position * -1.f);
@@ -78,10 +99,11 @@ bool Camera::isRenderPosition(const Vector3 targetPosition)
 {
 	Vector3 localPosition = targetPosition - position;
 
-	// GetViewMatrix()의 RotationY(theta)와 동일하게 점을 회전시켜 카메라가 보는 방향(+Z)을 기준으로 맞춘다.
 	float c = std::cos(theta);
 	float s = std::sin(theta);
-	Vector3 viewLocalPosition(c * localPosition.x + s * localPosition.z, localPosition.y, -s * localPosition.x + c * localPosition.z);
+	Vector3 viewLocalPosition(c * localPosition.x + s * localPosition.z, 
+								localPosition.y, 
+								-s * localPosition.x + c * localPosition.z);
 
 	//1차
 	float offset = farZ * 0.2f;
@@ -107,7 +129,7 @@ bool Camera::isRenderTile(const FloorTileInstance& targetTile)
 		bool insideAllPlanes = true;
 		for (const auto& plane : planes)
 		{
-			if (plane.CheckSide(vertex) == PlaneSide::Outside)
+			if (plane.CheckSide(vertex) == EPlaneSide::Outside)
 			{
 				insideAllPlanes = false;
 				break;
@@ -132,7 +154,55 @@ void Camera::RotateCameraRadian(float radian)
 
 void Camera::RotateCameraDegree(float degree)
 {
-	RotateCameraRadian(DegreesToRadians(degree));
+	RotateCameraRadian(MathUtil::DegToRad(degree));
+}
+
+void Camera::moveRequest(EMoveDirection moveDir, float moveDistance)
+{
+	if (cameraState != ECameraState::idle) return;
+	//todo : 전방벡터에 대한 연산 필요
+	float c = std::cos(-theta);
+	float s = std::sin(-theta);
+	Vector3 forward = Vector3(s, 0, c);
+	Vector3 right = Vector3(forward.z, 0, -forward.x);
+	float distance = 400.0f;
+	switch (moveDir)
+	{
+	case EMoveDirection::Forward:
+		targetPosition = position + (forward * distance);
+		break;
+	case EMoveDirection::Backward:
+		targetPosition = position - (forward * distance);
+		break;
+	case EMoveDirection::Left:
+		targetPosition = position - (right * distance);
+		break;
+	case EMoveDirection::Right:
+		targetPosition = position + (right * distance);
+		break;
+	}
+	cameraState = ECameraState::move;
+	elapsedTime = 0;
+}
+
+void Camera::rotateRequest(ERotateDirection rotateDir, float rotateDegree)
+{
+	if (cameraState != ECameraState::idle) return;
+	
+	float rad = MathUtil::DegToRad(rotateDegree);
+	
+	switch (rotateDir)
+	{
+	case ERotateDirection::Left:
+		break;
+	case ERotateDirection::Right:
+		rad = -rad;
+		break;
+	}
+	
+	targetTheta += rad;
+	cameraState = ECameraState::rotate;
+	elapsedTime = 0;
 }
 
 void Camera::InitPlanes()
@@ -149,13 +219,13 @@ void Camera::InitPlanes()
 	planes.push_back(upPlane);
 	Plane downPlane = Plane(Vector3(0,-c,-s), 0);
 	planes.push_back(downPlane);
-	
+	/*
 	Plane rightPlane = Plane(Vector3(c,0,-s), 0);
 	planes.push_back(rightPlane);
 	Plane leftPlane = Plane(Vector3(-c,0,-s), 0);
 	planes.push_back(leftPlane);
+	*/
 	
-	/*
 	float hFov = std::atan(std::tan(fov / 2) * aspectRatio);
 	float sh = std::sin(hFov);
 	float ch = std::cos(hFov);
@@ -163,5 +233,5 @@ void Camera::InitPlanes()
 	planes.push_back(rightPlane);
 	Plane leftPlane = Plane(Vector3(-ch,0,-sh), 0);
 	planes.push_back(leftPlane);
-	*/
+	
 }
