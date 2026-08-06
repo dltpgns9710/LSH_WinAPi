@@ -6,16 +6,14 @@
 #include "WinapiPortfolio.h"
 #include "D2DFramework/Graphics/include/Graphics.h"
 #include "D2DFramework/Manager/include/SceneManager.h"
-
-#include <mmsystem.h>
-#pragma comment(lib, "winmm.lib")
-
-#include <dwrite.h>
-#pragma comment(lib, "dwrite.lib")
-
 #include "D2DFramework/Manager/include/DataManager.h"
+#include "D2DFramework/Manager/include/InputManager.h"
 #include "D2DFramework/Manager/include/SpriteSheetManager.h"
 #include "Level/Dungeon.h"
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
+#include <dwrite.h>
+#pragma comment(lib, "dwrite.lib")
 
 #define MAX_LOADSTRING 100
 
@@ -23,6 +21,7 @@
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
+HWND gHwnd;
 
 std::shared_ptr<Graphics> graphics;
 
@@ -60,6 +59,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WINAPIPORTFOLIO));
 
+    InputManager::GetInstance().Init(gHwnd);
+    
     SpriteSheetManager::GetInstance().Init(graphics, L"Resources/Texture");
     DataManager::GetInstance().Init(L"Resources/Data");
     GameLevel::Init(graphics);
@@ -108,6 +109,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }// FPS 계산 (0.5초마다 갱신) 끝
 
         //Update
+        InputManager::GetInstance().Update();
         SceneManager::GetInstance().Update(deltaTime);
 
         //PostUpdate
@@ -174,22 +176,22 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+   gHwnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
-   if (!hWnd)
+   if (!gHwnd)
    {
       return FALSE;
    }
 
    graphics = std::make_shared<Graphics>();
-   if (!graphics->Init(hWnd))
+   if (!graphics->Init(gHwnd))
    {
        return false;
    }
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+   ShowWindow(gHwnd, nCmdShow);
+   UpdateWindow(gHwnd);
 
    return TRUE;
 }
