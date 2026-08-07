@@ -188,7 +188,7 @@ void Camera::moveRequest(EMoveDirection moveDir, float moveDistance)
 void Camera::rotateRequest(ERotateDirection rotateDir, float rotateDegree)
 {
 	if (cameraState != ECameraState::idle) return;
-	
+
 	float rad = MathUtil::DegToRad(rotateDegree);
 	
 	switch (rotateDir)

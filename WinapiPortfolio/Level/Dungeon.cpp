@@ -18,8 +18,8 @@ namespace
     constexpr float kGridStartX = -400.f;
     constexpr float kGridStartZ = 100.f;
     // 카메라가 X축 기준 타일 격자 중앙에 오도록.
-    constexpr float kCameraX = (kGridSizeX * FloorTileInstance::kTileSize) / 2.f;
-    constexpr float kCameraZ = FloorTileInstance::kTileSize/2 + (kGridSizeZ * FloorTileInstance::kTileSize) / 2.f;
+    constexpr float kCameraX = FloorTileInstance::kTileSize/2 + kGridStartX + (kGridSizeX * FloorTileInstance::kTileSize) / 2.f;
+    constexpr float kCameraZ = FloorTileInstance::kTileSize/2 + kGridStartZ + (kGridSizeZ * FloorTileInstance::kTileSize) / 2.f;
 }
 
 void Dungeon::Load()
@@ -78,9 +78,10 @@ void Dungeon::Render()
             * Matrix4x4::Scale(Vector3(FloorTileInstance::kTileSize / sprite->GetImageWidth(), FloorTileInstance::kTileSize / sprite->GetImageHeight(), 1.f));
         
         Matrix4x4 modelView = cameraView * model;                                                                                                                                              
-                                                    
+        /*                                            
         const float EPSILON = 1e-5f;
-        if (std::abs(modelView.m[2][3]) < EPSILON) modelView.m[2][3] = -EPSILON;                                                                                                                                                                                   
+        if (std::abs(modelView.m[2][3]) < EPSILON) modelView.m[2][3] = -EPSILON;  
+        */
         Matrix4x4 final = viewport * cameraProj * modelView;
         
         sprite->DrawSpriteWarped(final);
