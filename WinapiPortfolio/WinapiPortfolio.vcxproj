@@ -152,6 +152,8 @@
     <ClInclude Include="D2DFramework\Core\include\Singleton.h" />
     <ClInclude Include="D2DFramework\Graphics\include\Graphics.h" />
     <ClInclude Include="D2DFramework\Graphics\include\SpriteAtlas.h" />
+    <ClInclude Include="Data\DungeonData.h" />
+    <ClInclude Include="Data\SpriteTextureMapData.h" />
     <ClInclude Include="D2DFramework\Graphics\include\SpriteSheet.h" />
     <ClInclude Include="D2DFramework\Graphics\include\SpriteSheetAnimation.h" />
     <ClInclude Include="D2DFramework\Lib\include\json.hpp" />
@@ -163,6 +165,7 @@
     <ClInclude Include="D2DFramework\Physics\include\CollisionCalc.h" />
     <ClInclude Include="Level\Dungeon.h" />
     <ClInclude Include="Level\Level1.h" />
+    <ClInclude Include="Level\ObjectEditor.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="WinapiPortfolio.h" />
@@ -417,6 +420,7 @@
     <ClCompile Include="D2DFramework\Graphics\src\Graphics.cpp" />
     <ClCompile Include="Level\Dungeon.cpp" />
     <ClCompile Include="Level\Level1.cpp" />
+    <ClCompile Include="Level\ObjectEditor.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

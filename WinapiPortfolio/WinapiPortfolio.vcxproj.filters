@@ -27,6 +27,12 @@
     <ClInclude Include="WinapiPortfolio.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Data\DungeonData.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\SpriteTextureMapData.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="D2DFramework\Graphics\include\Graphics.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
