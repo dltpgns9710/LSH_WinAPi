@@ -168,13 +168,19 @@ void ObjectEditor::Render()
     Matrix4x4 groupRotation = Matrix4x4::Translation(objectPivot) * Matrix4x4::RotationY(groupAngle);
 
     // D2D는 깊이 테스트 없이 그린 순서대로 위에 덮어 그리므로, 카메라로부터 먼 텍스처부터 그려야 한다.
-    // FLOOR(법선=Y)는 z-버퍼 값과 무관하게 항상 맨 먼저(=맨 뒤) 그린다.
+    // 바닥(y≈0, 법선=Y)은 z-버퍼 값과 무관하게 항상 맨 먼저(=맨 뒤) 그린다 - 바닥처럼 카메라 쪽으로
+    // 넓게 깔린 조각은 중심 좌표 하나로 계산한 깊이가 실제 겹침 관계를 제대로 반영하지 못해서다.
+    // 다만 상자 뚜껑처럼 공중에 떠 있는(y가 0이 아닌) FLOOR 조각까지 이 규칙을 적용하면, 나중에(=더
+    // 앞에) 그려지는 옆면 파츠에 항상 덮여 안 보이는 문제가 있었다 - 이런 조각은 일반 깊이 정렬에
+    // 맡긴다.
+    auto isGroundFloor = [](const RenderPart* p) { return p->isFloor && std::abs(p->localPosition.y) < 1.f; };
+
     std::vector<const RenderPart*> drawOrder;
     drawOrder.reserve(currentParts.size());
     for (const RenderPart& part : currentParts) drawOrder.push_back(&part);
     std::sort(drawOrder.begin(), drawOrder.end(), [&](const RenderPart* a, const RenderPart* b)
         {
-            if (a->isFloor != b->isFloor) return a->isFloor; // FLOOR가 항상 먼저(맨 뒤)
+            if (isGroundFloor(a) != isGroundFloor(b)) return isGroundFloor(a); // 바닥이 항상 먼저(맨 뒤)
 
             auto ndcDepth = [&](const RenderPart* p)
                 {
