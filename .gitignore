@@ -39,7 +39,8 @@ Win32/
 *.DotSettings.user
 
 # Resources folder (project assets not tracked in git)
-WinapiPortfolio/Resources/
+WinapiPortfolio/Resources/*
+!WinapiPortfolio/Resources/Data/
 
 # Temp/scratch files (debug scripts, QA screenshots, etc.)
 temp/
