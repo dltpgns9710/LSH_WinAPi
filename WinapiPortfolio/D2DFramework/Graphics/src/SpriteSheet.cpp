@@ -187,6 +187,11 @@ std::shared_ptr<SpriteSheet> SpriteSheet::CreateTiledRegion(float startX, float 
 
 	bakeContext->SetTarget(destBitmap.Get());
 	bakeContext->BeginDraw();
+	// destBitmap은 새로 생성된 타깃이라 초기화되지 않은 GPU 메모리를 담고 있다. 타일 소스에 투명한
+	// 픽셀(예: 꽃 이미지의 꽃 사이 빈 공간)이 있으면 FillRectangle의 SourceOver 블렌딩이 그 자리의
+	// 쓰레기 값을 그대로 남겨 빨강/파랑/초록 같은 엉뚱한 색으로 보이는 문제가 있었다 - 먼저 완전
+	// 투명으로 지워서 방지한다.
+	bakeContext->Clear(D2D1::ColorF(0.f, 0.f, 0.f, 0.f));
 	bakeContext->FillRectangle(
 		D2D1::RectF(0.f, 0.f, static_cast<float>(destWidth), static_cast<float>(destHeight)), tileBrush.Get());
 	bakeContext->EndDraw();
