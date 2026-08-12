@@ -104,13 +104,18 @@ void SpriteSheet::DrawSpriteWarped(const Matrix4x4& localToScreen)
 		}
 	}
 
-	ComPtr<ID2D1Effect> transformEffect;
-	graphics->GetDeviceContext()->CreateEffect(CLSID_D2D13DTransform, &transformEffect);
-	transformEffect->SetInput(0, bmp.Get());
-	transformEffect->SetValue(D2D1_3DTRANSFORM_PROP_INTERPOLATION_MODE, D2D1_3DTRANSFORM_INTERPOLATION_MODE_LINEAR);
-	transformEffect->SetValue(D2D1_3DTRANSFORM_PROP_TRANSFORM_MATRIX, d2dMatrix);
+	// 매 프레임/매 파츠마다 CreateEffect로 새 이펙트 인스턴스를 만들면 이펙트 그래프 생성/파괴가
+	// 반복되는데, 이 과정에서 드로우 콜 사이에 GPU 파이프라인 상태가 얽혀 다른 파츠가 엉뚱한 색으로
+	// 그려지는 문제가 있었다. 이펙트를 이 SpriteSheet 인스턴스에 캐싱해 재사용하면 이 문제가 사라진다.
+	if (!warpEffect)
+	{
+		graphics->GetDeviceContext()->CreateEffect(CLSID_D2D13DTransform, &warpEffect);
+		warpEffect->SetValue(D2D1_3DTRANSFORM_PROP_INTERPOLATION_MODE, D2D1_3DTRANSFORM_INTERPOLATION_MODE_LINEAR);
+	}
+	warpEffect->SetInput(0, bmp.Get());
+	warpEffect->SetValue(D2D1_3DTRANSFORM_PROP_TRANSFORM_MATRIX, d2dMatrix);
 
-	graphics->GetDeviceContext()->DrawImage(transformEffect.Get());
+	graphics->GetDeviceContext()->DrawImage(warpEffect.Get());
 }
 
 std::shared_ptr<SpriteSheet> SpriteSheet::CreateSubRegion(float startX, float startY, float endX, float endY) const
@@ -131,6 +136,69 @@ std::shared_ptr<SpriteSheet> SpriteSheet::CreateSubRegion(float startX, float st
 	subBitmap->CopyFromBitmap(nullptr, bmp.Get(), &srcRect);
 
 	return std::shared_ptr<SpriteSheet>(new SpriteSheet(graphics, subBitmap));
+}
+
+std::shared_ptr<SpriteSheet> SpriteSheet::CreateTiledRegion(float startX, float startY, float endX, float endY, int repeatX, int repeatY) const
+{
+	if (repeatX < 1) repeatX = 1;
+	if (repeatY < 1) repeatY = 1;
+
+	UINT32 tileWidth = static_cast<UINT32>(endX - startX);
+	UINT32 tileHeight = static_cast<UINT32>(endY - startY);
+	UINT32 destWidth = tileWidth * static_cast<UINT32>(repeatX);
+	UINT32 destHeight = tileHeight * static_cast<UINT32>(repeatY);
+
+	// 반복 채우기를 위해 SetTarget/BeginDraw/EndDraw로 타깃을 전환해야 하는데, 메인 프레임 렌더링에
+	// 쓰는 공용 디바이스 컨텍스트(graphics->GetDeviceContext())를 그대로 쓰면 그 컨텍스트에 남아있는
+	// 상태(바인딩된 타깃/이펙트 등)와 얽혀 다른 스프라이트 파츠의 비트맵이 깨지는 문제가 있었다.
+	// (예: 이 함수가 SetTarget으로 타깃을 바꿨다가 되돌리는 사이, 같은 컨텍스트에서 만든 다른
+	// CreateSubRegion 결과물이 이후 렌더링에서 엉뚱한 색으로 나타남.) 같은 ID2D1Device에서 만든
+	// 별도의 디바이스 컨텍스트는 비트맵 등 디바이스 리소스를 공유하면서도 타깃/그리기 상태는
+	// 독립적이므로, 이 함수 전용 컨텍스트를 하나 만들어 완전히 격리시킨다.
+	ComPtr<ID2D1DeviceContext> bakeContext;
+	graphics->GetD2DDevice()->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &bakeContext);
+
+	// 1. atlasRect 한 조각만 우선 크롭한다 (CreateSubRegion과 동일한 방식).
+	D2D1_BITMAP_PROPERTIES1 tileProps = D2D1::BitmapProperties1(
+		D2D1_BITMAP_OPTIONS_NONE,
+		D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED));
+
+	ComPtr<ID2D1Bitmap1> tileBitmap;
+	bakeContext->CreateBitmap(D2D1::SizeU(tileWidth, tileHeight), nullptr, 0, tileProps, &tileBitmap);
+
+	D2D1_RECT_U srcRect = D2D1::RectU(
+		static_cast<UINT32>(startX), static_cast<UINT32>(startY),
+		static_cast<UINT32>(endX), static_cast<UINT32>(endY));
+	tileBitmap->CopyFromBitmap(nullptr, bmp.Get(), &srcRect);
+
+	// 2. repeatX x repeatY 크기의 렌더타깃 비트맵을 만들고, WRAP 익스텐드 모드의 비트맵 브러시로
+	// 한 번에 채운다 (반복 그리기를 GPU가 대신 해줌).
+	D2D1_BITMAP_PROPERTIES1 destProps = D2D1::BitmapProperties1(
+		D2D1_BITMAP_OPTIONS_TARGET,
+		D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED));
+
+	ComPtr<ID2D1Bitmap1> destBitmap;
+	bakeContext->CreateBitmap(D2D1::SizeU(destWidth, destHeight), nullptr, 0, destProps, &destBitmap);
+
+	ComPtr<ID2D1BitmapBrush1> tileBrush;
+	D2D1_BITMAP_BRUSH_PROPERTIES1 brushProps = D2D1::BitmapBrushProperties1(
+		D2D1_EXTEND_MODE_WRAP, D2D1_EXTEND_MODE_WRAP, D2D1_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
+	bakeContext->CreateBitmapBrush(tileBitmap.Get(), brushProps, D2D1::BrushProperties(), &tileBrush);
+
+	bakeContext->SetTarget(destBitmap.Get());
+	bakeContext->BeginDraw();
+	bakeContext->FillRectangle(
+		D2D1::RectF(0.f, 0.f, static_cast<float>(destWidth), static_cast<float>(destHeight)), tileBrush.Get());
+	bakeContext->EndDraw();
+
+	// 서로 다른 ID2D1DeviceContext가 같은 ID3D11 디바이스(즉시 컨텍스트)를 공유할 때는, 한 컨텍스트에서
+	// 그린 커맨드가 실제로 GPU에 제출되기 전에 다른 컨텍스트로 그리기를 넘기면 안 된다(MSDN: "call Flush
+	// on a device context before you use a different device context to draw to the same device"). 이걸
+	// 안 하면 메인 프레임 렌더링(다음 프레임의 graphics->BeginDraw)이 이 임시 컨텍스트가 마지막으로
+	// 바인딩한 타깃에 잘못 그려져, 이 함수가 만든 결과물과 무관한 다른 파츠가 깨져 보일 수 있다.
+	bakeContext->Flush();
+
+	return std::shared_ptr<SpriteSheet>(new SpriteSheet(graphics, destBitmap));
 }
 /*
 void SpriteSheet::DrawVer2()

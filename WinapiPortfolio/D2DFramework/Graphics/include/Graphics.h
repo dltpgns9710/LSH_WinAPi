@@ -29,6 +29,7 @@ public:
 	//inline const ComPtr<ID2D1HwndRenderTarget>& GetRenderTarget() {return renderTarget;}
 	inline const ComPtr<ID2D1DeviceContext>& GetDeviceContext() { return deviceContext; }
 	inline const ComPtr<ID2D1Factory1>& GetFactory() { return factory; }
+	inline const ComPtr<ID2D1Device>& GetD2DDevice() { return d2dDevice; }
 
 private:
 	// D3D11

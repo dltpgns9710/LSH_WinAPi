@@ -47,6 +47,7 @@ struct TextureEntry
     std::optional<AtlasRect> atlasRectPx; // textureIndex가 null이면 이것도 null
     Vector3 position;
     Vector3 size;
+    float rotationY = 0.f; // 이 파츠를 로컬 Y축으로 추가 회전시키는 각도(도). 기본 0. JSON에 없으면 0.
 };
 
 inline void from_json(const nlohmann::json& j, TextureEntry& tex)
@@ -66,6 +67,8 @@ inline void from_json(const nlohmann::json& j, TextureEntry& tex)
 
     j.at("position").get_to(tex.position);
     j.at("size").get_to(tex.size);
+
+    tex.rotationY = j.contains("rotationY") ? j.at("rotationY").get<float>() : 0.f;
 }
 
 struct Sprite
