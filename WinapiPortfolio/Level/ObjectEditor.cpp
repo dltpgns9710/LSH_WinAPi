@@ -22,6 +22,7 @@ namespace
     constexpr float kZoomSpeed = 300.f;         // W/S로 줌인/줌아웃하는 속도, cm/초
     constexpr float kMinZoomDistance = 100.f;   // 오브젝트에 너무 가까이 가지 않도록
     constexpr float kMaxZoomDistance = 1200.f;  // 너무 멀어지지 않도록
+    constexpr float kVerticalMoveSpeed = 300.f; // 1/2로 상하 이동하는 속도, cm/초
 
     // Matrix4x4::RotationY와 동일한 회전(Y축, 라디안)을 벡터 하나에 적용한다.
     // 깊이 정렬 시 각 파츠의 로컬 좌표를 실제 렌더링과 같은 방식으로 회전시키기 위해 사용.
@@ -260,6 +261,17 @@ void ObjectEditor::Update(double deltaTime)
         if (zoomIn) pos.z += kZoomSpeed * static_cast<float>(deltaTime);
         if (zoomOut) pos.z -= kZoomSpeed * static_cast<float>(deltaTime);
         pos.z = MathUtil::Clamp(pos.z, objectPivot.z - kMaxZoomDistance, objectPivot.z - kMinZoomDistance);
+        GetCamera()->SetPosition(pos);
+    }
+
+    // 1/2를 누르고 있는 동안 카메라를 위/아래로 이동시켜 다른 높이에서 볼 수 있게 한다.
+    bool moveUp = InputManager::GetInstance().GetButtonPressed(KeyType::KEY_1);
+    bool moveDown = InputManager::GetInstance().GetButtonPressed(KeyType::KEY_2);
+    if (moveUp || moveDown)
+    {
+        Vector3 pos = GetCamera()->GetPosition();
+        if (moveUp) pos.y += kVerticalMoveSpeed * static_cast<float>(deltaTime);
+        if (moveDown) pos.y -= kVerticalMoveSpeed * static_cast<float>(deltaTime);
         GetCamera()->SetPosition(pos);
     }
 }
