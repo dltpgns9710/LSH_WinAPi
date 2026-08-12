@@ -163,6 +163,7 @@
     <ClInclude Include="D2DFramework\Manager\include\DataManager.h" />
     <ClInclude Include="D2DFramework\Manager\include\SpriteSheetManager.h" />
     <ClInclude Include="D2DFramework\Physics\include\CollisionCalc.h" />
+    <ClInclude Include="Level\D01.h" />
     <ClInclude Include="Level\Dungeon.h" />
     <ClInclude Include="Level\Level1.h" />
     <ClInclude Include="Level\ObjectEditor.h" />
@@ -418,6 +419,7 @@
     <ClCompile Include="D2DFramework\Manager\include\SceneManager.h" />
     <ClCompile Include="D2DFramework\Scene\src\GameLevel.cpp" />
     <ClCompile Include="D2DFramework\Graphics\src\Graphics.cpp" />
+    <ClCompile Include="Level\D01.cpp" />
     <ClCompile Include="Level\Dungeon.cpp" />
     <ClCompile Include="Level\Level1.cpp" />
     <ClCompile Include="Level\ObjectEditor.cpp" />

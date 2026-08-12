@@ -1,0 +1,322 @@
+﻿#include "D01.h"
+
+#include <cmath>
+#include <algorithm>
+
+#include "../D2DFramework/Manager/include/DataManager.h"
+#include "../D2DFramework/Manager/include/SpriteSheetManager.h"
+#include "../D2DFramework/Manager/include/InputManager.h"
+#include "../D2DFramework/Graphics/include/SpriteSheet.h"
+#include "../D2DFramework/Camera/include/Camera.h"
+#include "../D2DFramework/Math/include/MathUtil.h"
+
+#include <dwrite.h>
+#pragma comment(lib, "dwrite.lib")
+
+namespace
+{
+    constexpr float kHalfPi = static_cast<float>(MathUtil::pi / 2.0);
+    constexpr float kCameraHeight = 150.f; // 오브젝트 피벗과 카메라 사이 눈높이(cm), ObjectEditor와 동일값
+
+    // Camera.cpp의 kTransitionDuration(이동/회전 애니메이션 지속시간)과 반드시 같은 값이어야 한다.
+    // D01은 이 시간이 지나기 전에는 새 이동/회전 요청을 보내지 않아, 카메라가 요청을 조용히
+    // 무시하는 상황(및 그로 인한 facingQuarter 어긋남)을 원천적으로 막는다.
+    constexpr float kActionCooldown = 0.5f;
+
+    // ObjectEditor.cpp의 RotateY와 동일. 셀 배치 시 스프라이트 파츠의 로컬 좌표를 셀 회전만큼 돌리기 위해 사용.
+    Vector3 RotateY(const Vector3& v, float radians)
+    {
+        float s = std::sin(radians);
+        float c = std::cos(radians);
+        return Vector3(c * v.x + s * v.z, v.y, -s * v.x + c * v.z);
+    }
+
+    // facingQuarter(0=+Z, 90도 단위로 반시계) -> 정면 방향 단위 벡터.
+    // Camera::moveRequest가 쓰는 forward=(sin(-theta),0,cos(-theta))와 같은 규칙(A=Left가 theta를 90도씩 증가)이다.
+    Vector3 QuarterToForward(int quarter)
+    {
+        switch (((quarter % 4) + 4) % 4)
+        {
+        case 0: return Vector3(0.f, 0.f, 1.f);
+        case 1: return Vector3(-1.f, 0.f, 0.f);
+        case 2: return Vector3(0.f, 0.f, -1.f);
+        default: return Vector3(1.f, 0.f, 0.f);
+        }
+    }
+
+    // 그리드(gridX,gridY) -> 월드 좌표. z는 grid y와 반대로 둬야 카메라 기본 방향(+Z, facingQuarter=0)이
+    // 시작 위치(6,19)에서 계단(6,20)을 등지는 방향(그리드 y가 작아지는 쪽)과 일치한다.
+    Vector3 GridToWorld(int gridX, int gridY, float cellSize)
+    {
+        return Vector3(gridX * cellSize, 0.f, -(gridY * cellSize));
+    }
+}
+
+void D01::Load()
+{
+    DataManager::GetInstance().Load(L"Dungeon01", L"dungeon_01_01.json");
+    DataManager::GetInstance().GetDataAs(L"Dungeon01", dungeonData);
+
+    DataManager::GetInstance().Load(L"SpriteTextureMap", L"sprite_texture_map.json");
+    DataManager::GetInstance().GetDataAs(L"SpriteTextureMap", spriteMapData);
+
+    placedParts.reserve(dungeonData.cells.size() * 4);
+    for (const Cell& cell : dungeonData.cells)
+    {
+        PlaceCell(cell);
+    }
+
+    float cellSize = dungeonData.grid.cellSize;
+    Vector3 startWorldPos = GridToWorld(dungeonData.startPosition.x, dungeonData.startPosition.y, cellSize);
+    startWorldPos.y = kCameraHeight;
+    GetCamera()->SetPosition(startWorldPos);
+
+    // 화면 우측 상단에 던전 이름을 표시하기 위한 DirectWrite 리소스 준비
+    DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
+        reinterpret_cast<IUnknown**>(nameDWriteFactory.GetAddressOf()));
+    nameDWriteFactory->CreateTextFormat(L"Consolas", nullptr,
+        DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
+        20.0f, L"en-us", nameTextFormat.GetAddressOf());
+    nameTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+    graphics->GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), nameBrush.GetAddressOf());
+}
+
+void D01::UnLoad()
+{
+}
+
+const std::vector<D01::PartTemplate>& D01::GetOrBuildSpriteTemplate(const std::string& spriteName)
+{
+    auto found = spriteTemplateCache.find(spriteName);
+    if (found != spriteTemplateCache.end()) return found->second;
+
+    std::vector<PartTemplate> parts;
+
+    const Sprite* sprite = nullptr;
+    for (const Sprite& s : spriteMapData.sprites)
+    {
+        if (s.name == spriteName) { sprite = &s; break; }
+    }
+
+    if (sprite)
+    {
+        parts.reserve(sprite->textures.size());
+        for (const TextureEntry& tex : sprite->textures)
+        {
+            const TextureListEntry* texInfo = spriteMapData.FindTexture(tex.textureIndex);
+            if (!texInfo || !tex.atlasRectPx.has_value()) continue; // 헬퍼(BoundingBox 등) 스킵
+
+            // ObjectEditor::LoadSpriteAt과 동일한 기준으로 바닥류/퇴화 파츠를 판정한다.
+            float ax = std::abs(tex.size.x), ay = std::abs(tex.size.y), az = std::abs(tex.size.z);
+            float minXZ = (ax < az) ? ax : az;
+            bool isFloor = (ay <= 0.8f * minXZ);
+
+            bool degenerate = isFloor ? (ax < 1.f || az < 1.f) : (ax < 1.f || ay < 1.f);
+            if (degenerate) continue;
+
+            std::wstring texKey(texInfo->texture.begin(), texInfo->texture.end());
+            std::string fileName = texInfo->texturePath.substr(texInfo->texturePath.find_last_of('/') + 1);
+            std::wstring wFileName(fileName.begin(), fileName.end());
+
+            SpriteSheetManager::GetInstance().LoadTexture(texKey, wFileName);
+            std::shared_ptr<SpriteSheet> fullSheet = SpriteSheetManager::GetInstance().GetTexture(texKey);
+            if (!fullSheet) continue;
+
+            const AtlasRect& rect = *tex.atlasRectPx;
+            PartTemplate part;
+            if (tex.tiled)
+            {
+                part.sheet = fullSheet->CreateTiledRegion(
+                    static_cast<float>(rect.x), static_cast<float>(rect.y),
+                    static_cast<float>(rect.x + rect.width), static_cast<float>(rect.y + rect.height),
+                    tex.repeatX, tex.repeatY);
+            }
+            else
+            {
+                part.sheet = fullSheet->CreateSubRegion(
+                    static_cast<float>(rect.x), static_cast<float>(rect.y),
+                    static_cast<float>(rect.x + rect.width), static_cast<float>(rect.y + rect.height));
+            }
+            if (!part.sheet) continue;
+
+            part.localPosition = tex.position;
+            part.size = tex.size;
+            part.isFloor = isFloor;
+            part.extraYRotation = tex.rotationY * static_cast<float>(MathUtil::pi / 180.0);
+
+            parts.push_back(std::move(part));
+        }
+    }
+
+    auto inserted = spriteTemplateCache.emplace(spriteName, std::move(parts));
+    return inserted.first->second;
+}
+
+void D01::PlaceCell(const Cell& cell)
+{
+    const std::vector<SpriteSetPart>* setParts = dungeonData.FindSpriteSet(cell.spriteSetIndex);
+    if (!setParts || setParts->empty()) return;
+
+    float cellSize = dungeonData.grid.cellSize;
+    Vector3 cellWorldPos = GridToWorld(cell.x, cell.y, cellSize);
+
+    for (const SpriteSetPart& setPart : *setParts)
+    {
+        int quarterTurns = ((cell.cellRot + setPart.blockRot) % 4 + 4) % 4;
+        float totalRotation = quarterTurns * kHalfPi;
+
+        const std::vector<PartTemplate>& templates = GetOrBuildSpriteTemplate(setPart.name);
+        for (const PartTemplate& tmpl : templates)
+        {
+            if (!tmpl.sheet) continue;
+
+            PlacedPart placed;
+            placed.sheet = tmpl.sheet;
+            placed.worldPosition = cellWorldPos + RotateY(tmpl.localPosition, totalRotation);
+            placed.size = tmpl.size;
+            placed.isFloor = tmpl.isFloor;
+            placed.worldYRotation = tmpl.extraYRotation + totalRotation;
+            placedParts.push_back(std::move(placed));
+        }
+    }
+}
+
+void D01::Render()
+{
+    // 이전 프레임(다른 레벨)의 잔상이 남지 않도록 매 프레임 명시적으로 지운다.
+    graphics->ClearScreen(0.f, 0.f, 0.f);
+
+    super::Render();
+
+    D2D1_SIZE_F clientSize = graphics->GetDeviceContext()->GetSize();
+
+    // 우측 상단에 던전 id 표시
+    std::wstring wname(dungeonData.dungeonId.begin(), dungeonData.dungeonId.end());
+    D2D1_RECT_F nameRect = D2D1::RectF(clientSize.width - 400.f, 10.f, clientSize.width - 10.f, 40.f);
+    graphics->GetDeviceContext()->DrawText(
+        wname.c_str(), static_cast<UINT32>(wname.size()), nameTextFormat.Get(), nameRect, nameBrush.Get());
+
+    if (placedParts.empty()) return;
+
+    Matrix4x4 cameraView = GetCamera()->GetViewMatrix();
+    Matrix4x4 cameraProj = GetCamera()->GetProjectionMatrix();
+    Matrix4x4 viewport = Matrix4x4::Viewport(clientSize.width, clientSize.height);
+    Matrix4x4 viewProj = cameraProj * cameraView; // z-버퍼 정렬용
+
+    // 카메라 시야에 들어올 만한 파츠만 골라 그린다 (던전 전체를 매 프레임 그리기엔 파츠 수가 많다).
+    std::vector<const PlacedPart*> drawOrder;
+    drawOrder.reserve(placedParts.size());
+    for (const PlacedPart& part : placedParts)
+    {
+        if (!part.sheet) continue;
+        if (!GetCamera()->isRenderPosition(part.worldPosition)) continue;
+        drawOrder.push_back(&part);
+    }
+
+    // D2D는 깊이 테스트 없이 그린 순서대로 위에 덮어 그리므로, 카메라로부터 먼 텍스처부터 그려야 한다.
+    // 진짜 바닥(y≈0, 법선=Y)은 z-버퍼 값과 무관하게 항상 맨 먼저(=맨 뒤) 그린다 - ObjectEditor::Render 참고.
+    auto isGroundFloor = [](const PlacedPart* p) { return p->isFloor && std::abs(p->worldPosition.y) < 1.f; };
+
+    std::sort(drawOrder.begin(), drawOrder.end(), [&](const PlacedPart* a, const PlacedPart* b)
+        {
+            if (isGroundFloor(a) != isGroundFloor(b)) return isGroundFloor(a);
+
+            auto ndcDepth = [&](const PlacedPart* p)
+                {
+                    const Vector3& w = p->worldPosition;
+                    float clipZ = viewProj.m[2][0] * w.x + viewProj.m[2][1] * w.y
+                        + viewProj.m[2][2] * w.z + viewProj.m[2][3];
+                    float clipW = viewProj.m[3][0] * w.x + viewProj.m[3][1] * w.y
+                        + viewProj.m[3][2] * w.z + viewProj.m[3][3];
+                    return clipW != 0.f ? clipZ / clipW : clipZ;
+                };
+            return ndcDepth(a) > ndcDepth(b); // 먼 것부터(내림차순) 그린다
+        });
+
+    for (const PlacedPart* partPtr : drawOrder)
+    {
+        const PlacedPart& part = *partPtr;
+
+        float pixelW = part.sheet->GetImageWidth();
+        float pixelH = part.sheet->GetImageHeight();
+        if (pixelW <= 0.f || pixelH <= 0.f) continue;
+
+        Matrix4x4 extraRotation = Matrix4x4::RotationY(part.worldYRotation);
+
+        Matrix4x4 model;
+        if (part.isFloor)
+        {
+            model = Matrix4x4::Translation(part.worldPosition)
+                * extraRotation
+                * Matrix4x4::RotationX(kHalfPi)
+                * Matrix4x4::Scale(Vector3(part.size.x / pixelW, part.size.z / pixelH, 1.f))
+                * Matrix4x4::Translation(Vector3(-pixelW / 2.f, -pixelH / 2.f, 0.f));
+        }
+        else
+        {
+            model = Matrix4x4::Translation(part.worldPosition)
+                * extraRotation
+                * Matrix4x4::Scale(Vector3(part.size.x / pixelW, -part.size.y / pixelH, 1.f))
+                * Matrix4x4::Translation(Vector3(-pixelW / 2.f, -pixelH / 2.f, 0.f));
+        }
+
+        Matrix4x4 final = viewport * cameraProj * cameraView * model;
+        part.sheet->DrawSpriteWarped(final);
+    }
+}
+
+bool D01::IsWalkable(int gridX, int gridY) const
+{
+    if (gridX < 0 || gridX >= dungeonData.grid.width) return false;
+    if (gridY < 0 || gridY >= dungeonData.grid.height) return false;
+
+    int index = gridY * dungeonData.grid.width + gridX; // Cell::index와 동일한 규칙 (y*width+x)
+    if (index < 0 || static_cast<size_t>(index) >= dungeonData.cells.size()) return false;
+
+    return dungeonData.cells[index].chipName == "FLOOR";
+}
+
+void D01::Update(double deltaTime)
+{
+    super::Update(deltaTime);
+    GetCamera()->Update(deltaTime);
+
+    actionCooldown -= static_cast<float>(deltaTime);
+    if (actionCooldown > 0.f) return; // 이전 이동/회전이 끝났을 시점 전이면 새 요청을 보내지 않는다.
+    actionCooldown = 0.f;
+
+    float cellSize = dungeonData.grid.cellSize;
+    Vector3 forward = QuarterToForward(facingQuarter);
+    Vector3 right(forward.z, 0.f, -forward.x); // Camera::moveRequest와 동일한 규칙
+
+    // 이동 요청 전에 목적지 칸이 FLOOR인지 먼저 확인한다. actionCooldown 덕분에 카메라는 항상
+    // idle 상태에서 호출되므로, 여기서 walkable이면 moveRequest는 반드시 실제로 이동을 수행한다.
+    auto tryMove = [&](EMoveDirection dir, const Vector3& delta)
+        {
+            Vector3 dest = GetCamera()->GetPosition() + delta;
+            int gridX = static_cast<int>(std::lround(dest.x / cellSize));
+            int gridY = static_cast<int>(std::lround(-dest.z / cellSize)); // GridToWorld의 z 반전과 짝을 맞춘 역변환
+            if (!IsWalkable(gridX, gridY)) return;
+            GetCamera()->moveRequest(dir);
+            actionCooldown = kActionCooldown;
+        };
+
+    // Dungeon과 동일한 그리드 이동/회전 조작: W/S/Q/E로 한 칸씩 이동, A/D로 90도 회전.
+    if (InputManager::GetInstance().GetButtonDown(KeyType::W)) tryMove(EMoveDirection::Forward, forward * cellSize);
+    if (InputManager::GetInstance().GetButtonDown(KeyType::S)) tryMove(EMoveDirection::Backward, forward * -cellSize);
+    if (InputManager::GetInstance().GetButtonDown(KeyType::Q)) tryMove(EMoveDirection::Left, right * -cellSize);
+    if (InputManager::GetInstance().GetButtonDown(KeyType::E)) tryMove(EMoveDirection::Right, right * cellSize);
+
+    if (InputManager::GetInstance().GetButtonDown(KeyType::A))
+    {
+        GetCamera()->rotateRequest(ERotateDirection::Left);
+        facingQuarter = (facingQuarter + 1) % 4;
+        actionCooldown = kActionCooldown;
+    }
+    if (InputManager::GetInstance().GetButtonDown(KeyType::D))
+    {
+        GetCamera()->rotateRequest(ERotateDirection::Right);
+        facingQuarter = (facingQuarter + 3) % 4;
+        actionCooldown = kActionCooldown;
+    }
+}
