@@ -2,6 +2,10 @@
   "dungeonId": "d01",
   "floorIndex": 0,
   "floorLabel": "1층",
+  "startPosition": {
+    "x": 6,
+    "y": 19
+  },
   "grid": {
     "width": 35,
     "height": 30,

@@ -19,6 +19,13 @@ struct GridInfo
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GridInfo, width, height, cellSize, cellSizeUnit)
 
+struct GridPosition
+{
+    int x;
+    int y;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GridPosition, x, y)
+
 struct SpriteSetPart
 {
     std::string name;
@@ -79,6 +86,7 @@ struct DungeonData
     std::string dungeonId;
     int floorIndex;
     std::string floorLabel;
+    GridPosition startPosition;
     GridInfo grid;
     std::map<std::string, std::string> chipLegend;       // 키: chipNo를 문자열로 변환한 값
     std::vector<std::string> spritePalette;
@@ -92,4 +100,4 @@ struct DungeonData
         return found != spriteSets.end() ? &found->second : nullptr;
     }
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DungeonData, dungeonId, floorIndex, floorLabel, grid, chipLegend, spritePalette, spriteSets, cells)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DungeonData, dungeonId, floorIndex, floorLabel, startPosition, grid, chipLegend, spritePalette, spriteSets, cells)

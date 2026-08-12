@@ -6,6 +6,11 @@
 #include "../../../Level/Dungeon.h"
 #include "../../Math/include/MathUtil.h"
 
+namespace
+{
+	constexpr float kTransitionDuration = 0.5f; // moveRequest/rotateRequest 애니메이션 지속시간(초)
+}
+
 Camera::Camera()
 	: Camera(Vector3(0.f, 0.f, 0.f), 70.f, 1920.f / 1080.f, 20.f, 2000.f){}
 
@@ -55,24 +60,24 @@ void Camera::Update(double deltaTime)
 	if (cameraState == ECameraState::move)
 	{
 		elapsedTime += deltaTime;
-		if (elapsedTime >= 1.0f)
+		if (elapsedTime >= kTransitionDuration)
 		{
 			position = targetPosition;
 			cameraState = ECameraState::idle;
 			elapsedTime = 0.0f;
 		}
-		else position = MathUtil::Lerp(position, targetPosition, elapsedTime);
+		else position = MathUtil::Lerp(position, targetPosition, static_cast<float>(elapsedTime / kTransitionDuration));
 	}
 	else if (cameraState == ECameraState::rotate)
 	{
 		elapsedTime += deltaTime;
-		if (elapsedTime >= 1.0f)
+		if (elapsedTime >= kTransitionDuration)
 		{
 			theta = targetTheta;
 			cameraState = ECameraState::idle;
 			elapsedTime = 0.0f;
 		}
-		else theta = MathUtil::Lerp(theta, targetTheta, elapsedTime);
+		else theta = MathUtil::Lerp(theta, targetTheta, static_cast<float>(elapsedTime / kTransitionDuration));
 		for (auto& plane : planes)
 		{
 			plane.RotateFromBaseWithRadian(-theta);
