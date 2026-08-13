@@ -29,6 +29,7 @@ private:
         Vector3 size;                // cm
         bool isFloor = false;        // 법선=Y축(바닥류) 여부
         float extraYRotation = 0.f;  // 특정 파츠에 대한 보정용 추가 회전
+        float extraXRotation = 0.f;  // 특정 파츠를 기울이는(pitch) 추가 회전
     };
 
     void LoadSpriteAt(int index);
