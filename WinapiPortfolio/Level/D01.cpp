@@ -232,61 +232,78 @@ void D01::Render()
     Matrix4x4 viewport = Matrix4x4::Viewport(clientSize.width, clientSize.height);
     Matrix4x4 viewProj = cameraProj * cameraView; // z-버퍼 정렬용
 
+    // 파츠 하나당 실제로 그려지는 사각형의 네 모서리(월드 좌표). 컬링(프러스텀 판정)과 깊이 정렬
+    // 둘 다 이 모서리가 필요해서, 파츠마다 한 번만 계산해 재사용한다 - 예전에는 정렬 비교자 안에서
+    // 매 비교마다(O(n log n)회) 다시 계산해 같은 파츠를 몇 번이고 반복 계산하고 있었다.
+    struct VisiblePart
+    {
+        const PlacedPart* part;
+        float depth; // z-버퍼 값(클수록 카메라에서 멀다), 네 모서리 중 가장 먼 지점 기준
+    };
+
+    auto computeCorners = [](const PlacedPart& p, Vector3 outCorners[4])
+        {
+            float halfX = p.size.x * 0.5f;
+            float halfOther = (p.isFloor ? p.size.z : p.size.y) * 0.5f;
+            float tiltRadians = p.extraXRotation + (p.isFloor ? kHalfPi : 0.f);
+            int i = 0;
+            for (float sx : { -1.f, 1.f })
+            {
+                for (float sy : { -1.f, 1.f })
+                {
+                    Vector3 corner(sx * halfX, sy * halfOther, 0.f);
+                    corner = RotateX(corner, tiltRadians);
+                    corner = RotateY(corner, p.worldYRotation);
+                    outCorners[i++] = p.worldPosition + corner;
+                }
+            }
+        };
+
     // 카메라 시야에 들어올 만한 파츠만 골라 그린다 (던전 전체를 매 프레임 그리기엔 파츠 수가 많다).
-    std::vector<const PlacedPart*> drawOrder;
+    // Camera::isRenderTile과 동일한 방식 - 중심점만 보던 이전의 사각 박스 컬링 대신, 파츠의 네 모서리
+    // 중 하나라도 카메라 프러스텀(near/far/up/down 평면) 안이면 보이는 것으로 취급한다. 중심점이
+    // 시야 밖이어도 큰 파츠의 모서리가 화면에 걸쳐 있으면 더 이상 잘못 컬링되지 않는다.
+    std::vector<VisiblePart> drawOrder;
     drawOrder.reserve(placedParts.size());
     for (const PlacedPart& part : placedParts)
     {
         if (!part.sheet) continue;
-        if (!GetCamera()->isRenderPosition(part.worldPosition)) continue;
-        drawOrder.push_back(&part);
+        if (!GetCamera()->isRenderPosition(part.worldPosition)) continue; // 값싼 사전 필터
+
+        Vector3 corners[4];
+        computeCorners(part, corners);
+
+        bool visible = false;
+        float depth = -FLT_MAX;
+        for (const Vector3& w : corners)
+        {
+            if (!visible && GetCamera()->isRenderPoint(w)) visible = true;
+
+            float clipZ = viewProj.m[2][0] * w.x + viewProj.m[2][1] * w.y
+                + viewProj.m[2][2] * w.z + viewProj.m[2][3];
+            float clipW = viewProj.m[3][0] * w.x + viewProj.m[3][1] * w.y
+                + viewProj.m[3][2] * w.z + viewProj.m[3][3];
+            float d = clipW != 0.f ? clipZ / clipW : clipZ;
+            if (d > depth) depth = d;
+        }
+        if (!visible) continue;
+
+        drawOrder.push_back({ &part, depth });
     }
 
     // D2D는 깊이 테스트 없이 그린 순서대로 위에 덮어 그리므로, 카메라로부터 먼 텍스처부터 그려야 한다.
     // 진짜 바닥(y≈0, 법선=Y)은 z-버퍼 값과 무관하게 항상 맨 먼저(=맨 뒤) 그린다 - ObjectEditor::Render 참고.
     auto isGroundFloor = [](const PlacedPart* p) { return p->isFloor && std::abs(p->worldPosition.y) < 1.f; };
 
-    std::sort(drawOrder.begin(), drawOrder.end(), [&](const PlacedPart* a, const PlacedPart* b)
+    std::sort(drawOrder.begin(), drawOrder.end(), [&](const VisiblePart& a, const VisiblePart& b)
         {
-            if (isGroundFloor(a) != isGroundFloor(b)) return isGroundFloor(a);
-
-            // 중심점 하나가 아니라 실제로 그려지는 사각형의 네 모서리 중 카메라에서 가장 먼 지점을
-            // 기준으로 삼는다 - ObjectEditor::Render 참고. bg처럼 크고 대각선으로 회전된 넓은 패널은
-            // 중심 좌표 하나만으로는 실제 깊이 범위를 대표하지 못해, 더 앞에 있어야 할 파츠보다
-            // 나중에(=위에) 그려지는 문제가 있었다. worldYRotation에는 이미 cellRot+blockRot+자체
-            // rotationY가 합쳐져 있으므로 별도 group 회전을 더 적용할 필요는 없다.
-            auto ndcDepth = [&](const PlacedPart* p)
-                {
-                    float halfX = p->size.x * 0.5f;
-                    float halfOther = (p->isFloor ? p->size.z : p->size.y) * 0.5f;
-                    float tiltRadians = p->extraXRotation + (p->isFloor ? kHalfPi : 0.f);
-
-                    float best = -FLT_MAX;
-                    for (float sx : { -1.f, 1.f })
-                    {
-                        for (float sy : { -1.f, 1.f })
-                        {
-                            Vector3 corner(sx * halfX, sy * halfOther, 0.f);
-                            corner = RotateX(corner, tiltRadians);
-                            corner = RotateY(corner, p->worldYRotation);
-                            Vector3 w = p->worldPosition + corner;
-
-                            float clipZ = viewProj.m[2][0] * w.x + viewProj.m[2][1] * w.y
-                                + viewProj.m[2][2] * w.z + viewProj.m[2][3];
-                            float clipW = viewProj.m[3][0] * w.x + viewProj.m[3][1] * w.y
-                                + viewProj.m[3][2] * w.z + viewProj.m[3][3];
-                            float depth = clipW != 0.f ? clipZ / clipW : clipZ;
-                            if (depth > best) best = depth;
-                        }
-                    }
-                    return best;
-                };
-            return ndcDepth(a) > ndcDepth(b); // 먼 것부터(내림차순) 그린다
+            if (isGroundFloor(a.part) != isGroundFloor(b.part)) return isGroundFloor(a.part);
+            return a.depth > b.depth; // 먼 것부터(내림차순) 그린다
         });
 
-    for (const PlacedPart* partPtr : drawOrder)
+    for (const VisiblePart& visiblePart : drawOrder)
     {
-        const PlacedPart& part = *partPtr;
+        const PlacedPart& part = *visiblePart.part;
 
         float pixelW = part.sheet->GetImageWidth();
         float pixelH = part.sheet->GetImageHeight();

@@ -128,22 +128,25 @@ bool Camera::isRenderTile(const FloorTileInstance& targetTile)
 	vertexs.push_back(Vector3(localPosition.x, localPosition.y, localPosition.z+targetTile.kTileSize));
 	vertexs.push_back(Vector3(localPosition.x+targetTile.kTileSize, localPosition.y, localPosition.z));
 	vertexs.push_back(Vector3(localPosition.x+targetTile.kTileSize, localPosition.y, localPosition.z+targetTile.kTileSize));
-	
+
+	// 네 꼭짓점 중 하나라도 모든 평면 안쪽이면 보이는 것으로 취급한다(타일이 프러스텀 경계에 걸쳐
+	// 있는데 꼭짓점이 전부 바깥인 경우는 놓치는 근사치지만, 기존 동작 그대로 유지).
 	for (const auto& vertex : vertexs)
 	{
-		bool insideAllPlanes = true;
-		for (const auto& plane : planes)
-		{
-			if (plane.CheckSide(vertex) == EPlaneSide::Outside)
-			{
-				insideAllPlanes = false;
-				break;
-			}
-		}
-		if (insideAllPlanes) return true;
+		if (isRenderPoint(vertex + position)) return true;
 	}
 
 	return false;
+}
+
+bool Camera::isRenderPoint(const Vector3 targetPosition)
+{
+	Vector3 localPosition = targetPosition - position;
+	for (const auto& plane : planes)
+	{
+		if (plane.CheckSide(localPosition) == EPlaneSide::Outside) return false;
+	}
+	return true;
 }
 
 void Camera::RotateCameraRadian(float radian)

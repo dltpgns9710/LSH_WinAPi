@@ -52,6 +52,7 @@ public:
 
 	bool isRenderPosition(const Vector3 targetPosition);
 	bool isRenderTile(const struct FloorTileInstance& targetTile);
+	bool isRenderPoint(const Vector3 targetPosition); // 프러스텀 평면(planes) 전부의 안쪽인지 점 하나만 검사
 	
 	void RotateCameraRadian(float radian);
 	void RotateCameraDegree(float degree);
