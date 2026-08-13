@@ -1,12 +1,14 @@
 ﻿#include "D01.h"
 
 #include <cmath>
+#include <cfloat>
 #include <algorithm>
 
 #include "../D2DFramework/Manager/include/DataManager.h"
 #include "../D2DFramework/Manager/include/SpriteSheetManager.h"
 #include "../D2DFramework/Manager/include/InputManager.h"
 #include "../D2DFramework/Graphics/include/SpriteSheet.h"
+#include "../D2DFramework/Graphics/include/SpriteAtlas.h"
 #include "../D2DFramework/Camera/include/Camera.h"
 #include "../D2DFramework/Math/include/MathUtil.h"
 
@@ -17,6 +19,11 @@ namespace
 {
     constexpr float kHalfPi = static_cast<float>(MathUtil::pi / 2.0);
     constexpr float kCameraHeight = 150.f; // 오브젝트 피벗과 카메라 사이 눈높이(cm), ObjectEditor와 동일값
+
+    // 던전용 카메라 시야 거리(cm). Camera의 기본값(20, 2000)은 2000/400 = 5칸이라 복도 끝이 잘렸다.
+    // Camera::isRenderPosition은 farZ * 1.2 를 컷 기준으로 쓰므로 실제로 보이는 거리는 이 값의 1.2배다.
+    constexpr float kCameraNearZ = 20.f;
+    constexpr float kCameraFarZ = 2000.f; // 5칸 (컬링 한계는 2400cm = 6칸)
 
     // Camera.cpp의 kTransitionDuration(이동/회전 애니메이션 지속시간)과 반드시 같은 값이어야 한다.
     // D01은 이 시간이 지나기 전에는 새 이동/회전 요청을 보내지 않아, 카메라가 요청을 조용히
@@ -29,6 +36,14 @@ namespace
         float s = std::sin(radians);
         float c = std::cos(radians);
         return Vector3(c * v.x + s * v.z, v.y, -s * v.x + c * v.z);
+    }
+
+    // ObjectEditor.cpp의 RotateX와 동일.
+    Vector3 RotateX(const Vector3& v, float radians)
+    {
+        float s = std::sin(radians);
+        float c = std::cos(radians);
+        return Vector3(v.x, c * v.y - s * v.z, s * v.y + c * v.z);
     }
 
     // facingQuarter(0=+Z, 90도 단위로 반시계) -> 정면 방향 단위 벡터.
@@ -54,6 +69,10 @@ namespace
 
 void D01::Load()
 {
+    SpriteSheetManager::GetInstance().LoadTexture(L"Background", L"Background.png");
+    background = std::make_shared<SpriteAtlas>(SpriteSheetManager::GetInstance().GetTexture(L"Background"));
+    background->SetDrawRegion(0, 250, background->GetClientWidthSize(), background->GetClientHeightSize());
+
     DataManager::GetInstance().Load(L"Dungeon01", L"dungeon_01_01.json");
     DataManager::GetInstance().GetDataAs(L"Dungeon01", dungeonData);
 
@@ -67,6 +86,12 @@ void D01::Load()
     }
 
     float cellSize = dungeonData.grid.cellSize;
+
+    // Camera 기본 farZ(2000cm)는 셀 5칸 거리라, isRenderPosition의 컷 기준(farZ * 1.2 = 6칸)을 넘는
+    // 복도 안쪽이 통째로 그려지지 않아 화면 중앙이 뻥 뚫린 것처럼 보였다. 던전은 시야가 길게 뻗는
+    // 복도가 많으므로 D01에서만 늘려 잡는다(전역 기본값을 바꾸면 Dungeon/ObjectEditor까지 영향).
+    GetCamera()->SetNearFar(kCameraNearZ, kCameraFarZ);
+
     Vector3 startWorldPos = GridToWorld(dungeonData.startPosition.x, dungeonData.startPosition.y, cellSize);
     startWorldPos.y = kCameraHeight;
     GetCamera()->SetPosition(startWorldPos);
@@ -143,6 +168,7 @@ const std::vector<D01::PartTemplate>& D01::GetOrBuildSpriteTemplate(const std::s
             part.size = tex.size;
             part.isFloor = isFloor;
             part.extraYRotation = tex.rotationY * static_cast<float>(MathUtil::pi / 180.0);
+            part.extraXRotation = tex.rotationX * static_cast<float>(MathUtil::pi / 180.0);
 
             parts.push_back(std::move(part));
         }
@@ -176,6 +202,7 @@ void D01::PlaceCell(const Cell& cell)
             placed.size = tmpl.size;
             placed.isFloor = tmpl.isFloor;
             placed.worldYRotation = tmpl.extraYRotation + totalRotation;
+            placed.extraXRotation = tmpl.extraXRotation;
             placedParts.push_back(std::move(placed));
         }
     }
@@ -183,8 +210,10 @@ void D01::PlaceCell(const Cell& cell)
 
 void D01::Render()
 {
-    // 이전 프레임(다른 레벨)의 잔상이 남지 않도록 매 프레임 명시적으로 지운다.
-    graphics->ClearScreen(0.f, 0.f, 0.f);
+    // Dungeon::Render()와 동일하게, 화면 전체를 덮는 배경을 그려서 이전 프레임(다른 레벨)의
+    // 잔상이 남지 않게 한다. 파츠가 그려지지 않는 픽셀(잎/잔디 텍스처의 투명한 부분, 캐노피 위쪽,
+    // 시야 밖으로 컬링된 원거리)을 전부 이 배경이 메워준다 - 없으면 그 자리가 그대로 검게 보인다.
+    background->DrawSpriteAtlas(0, 0, background->GetClientWidthSize(), background->GetClientHeightSize());
 
     super::Render();
 
@@ -221,14 +250,36 @@ void D01::Render()
         {
             if (isGroundFloor(a) != isGroundFloor(b)) return isGroundFloor(a);
 
+            // 중심점 하나가 아니라 실제로 그려지는 사각형의 네 모서리 중 카메라에서 가장 먼 지점을
+            // 기준으로 삼는다 - ObjectEditor::Render 참고. bg처럼 크고 대각선으로 회전된 넓은 패널은
+            // 중심 좌표 하나만으로는 실제 깊이 범위를 대표하지 못해, 더 앞에 있어야 할 파츠보다
+            // 나중에(=위에) 그려지는 문제가 있었다. worldYRotation에는 이미 cellRot+blockRot+자체
+            // rotationY가 합쳐져 있으므로 별도 group 회전을 더 적용할 필요는 없다.
             auto ndcDepth = [&](const PlacedPart* p)
                 {
-                    const Vector3& w = p->worldPosition;
-                    float clipZ = viewProj.m[2][0] * w.x + viewProj.m[2][1] * w.y
-                        + viewProj.m[2][2] * w.z + viewProj.m[2][3];
-                    float clipW = viewProj.m[3][0] * w.x + viewProj.m[3][1] * w.y
-                        + viewProj.m[3][2] * w.z + viewProj.m[3][3];
-                    return clipW != 0.f ? clipZ / clipW : clipZ;
+                    float halfX = p->size.x * 0.5f;
+                    float halfOther = (p->isFloor ? p->size.z : p->size.y) * 0.5f;
+                    float tiltRadians = p->extraXRotation + (p->isFloor ? kHalfPi : 0.f);
+
+                    float best = -FLT_MAX;
+                    for (float sx : { -1.f, 1.f })
+                    {
+                        for (float sy : { -1.f, 1.f })
+                        {
+                            Vector3 corner(sx * halfX, sy * halfOther, 0.f);
+                            corner = RotateX(corner, tiltRadians);
+                            corner = RotateY(corner, p->worldYRotation);
+                            Vector3 w = p->worldPosition + corner;
+
+                            float clipZ = viewProj.m[2][0] * w.x + viewProj.m[2][1] * w.y
+                                + viewProj.m[2][2] * w.z + viewProj.m[2][3];
+                            float clipW = viewProj.m[3][0] * w.x + viewProj.m[3][1] * w.y
+                                + viewProj.m[3][2] * w.z + viewProj.m[3][3];
+                            float depth = clipW != 0.f ? clipZ / clipW : clipZ;
+                            if (depth > best) best = depth;
+                        }
+                    }
+                    return best;
                 };
             return ndcDepth(a) > ndcDepth(b); // 먼 것부터(내림차순) 그린다
         });
@@ -242,6 +293,8 @@ void D01::Render()
         if (pixelW <= 0.f || pixelH <= 0.f) continue;
 
         Matrix4x4 extraRotation = Matrix4x4::RotationY(part.worldYRotation);
+        // 계단처럼 평면 자체를 기울여야 하는 파츠용 추가 회전(pitch) - ObjectEditor::Render의 extraTilt와 동일.
+        Matrix4x4 extraTilt = Matrix4x4::RotationX(part.extraXRotation);
 
         Matrix4x4 model;
         if (part.isFloor)
@@ -249,6 +302,7 @@ void D01::Render()
             model = Matrix4x4::Translation(part.worldPosition)
                 * extraRotation
                 * Matrix4x4::RotationX(kHalfPi)
+                * extraTilt
                 * Matrix4x4::Scale(Vector3(part.size.x / pixelW, part.size.z / pixelH, 1.f))
                 * Matrix4x4::Translation(Vector3(-pixelW / 2.f, -pixelH / 2.f, 0.f));
         }
@@ -256,6 +310,7 @@ void D01::Render()
         {
             model = Matrix4x4::Translation(part.worldPosition)
                 * extraRotation
+                * extraTilt
                 * Matrix4x4::Scale(Vector3(part.size.x / pixelW, -part.size.y / pixelH, 1.f))
                 * Matrix4x4::Translation(Vector3(-pixelW / 2.f, -pixelH / 2.f, 0.f));
         }

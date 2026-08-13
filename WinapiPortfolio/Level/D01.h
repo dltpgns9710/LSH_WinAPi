@@ -37,6 +37,7 @@ private:
         Vector3 size;           // cm
         bool isFloor = false;   // 법선=Y축(바닥류) 여부
         float extraYRotation = 0.f; // 라디안
+        float extraXRotation = 0.f; // 라디안, 계단처럼 파츠 자체를 기울이는(pitch) 추가 회전
     };
 
     // 던전 그리드에 실제로 배치되어 월드 좌표/회전이 확정된 파츠.
@@ -47,6 +48,7 @@ private:
         Vector3 size;
         bool isFloor = false;
         float worldYRotation = 0.f; // 라디안
+        float extraXRotation = 0.f; // 라디안, 셀 회전과 무관하게 파츠 자신을 축으로 기울이는 pitch
     };
 
     // 스프라이트 이름으로 텍스처 파츠 목록을 가져온다. 처음 요청된 이름이면 그때 잘라서 캐시에 채운다.
@@ -57,6 +59,8 @@ private:
 
     // 그리드 좌표(gridX,gridY) 칸이 FLOOR인지(=이동 가능한지) 확인한다. 범위 밖이면 false.
     bool IsWalkable(int gridX, int gridY) const;
+
+    std::shared_ptr<class SpriteAtlas> background;
 
     DungeonData dungeonData;
     SpriteTextureMapData spriteMapData;

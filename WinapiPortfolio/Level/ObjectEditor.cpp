@@ -1,6 +1,7 @@
 ﻿#include "ObjectEditor.h"
 
 #include <cmath>
+#include <cfloat>
 #include <algorithm>
 
 #include "../D2DFramework/Manager/include/DataManager.h"
@@ -32,6 +33,15 @@ namespace
         float c = std::cos(radians);
         return Vector3(c * v.x + s * v.z, v.y, -s * v.x + c * v.z);
     }
+
+    // Matrix4x4::RotationX와 동일한 회전(X축, 라디안)을 벡터 하나에 적용한다.
+    Vector3 RotateX(const Vector3& v, float radians)
+    {
+        float s = std::sin(radians);
+        float c = std::cos(radians);
+        return Vector3(v.x, c * v.y - s * v.z, s * v.y + c * v.z);
+    }
+
 }
 
 void ObjectEditor::Load()
@@ -187,12 +197,35 @@ void ObjectEditor::Render()
                 {
                     // groupRotation(오브젝트 회전)까지 반영해야 실제로 그려지는 위치와 같은 깊이를 비교한다.
                     // 이걸 빼먹으면 A/D로 돌렸을 때 실제 화면상 앞뒤 관계와 정렬 순서가 어긋난다.
-                    Vector3 w = objectPivot + RotateY(p->localPosition, groupAngle);
-                    float clipZ = viewProj.m[2][0] * w.x + viewProj.m[2][1] * w.y
-                        + viewProj.m[2][2] * w.z + viewProj.m[2][3];
-                    float clipW = viewProj.m[3][0] * w.x + viewProj.m[3][1] * w.y
-                        + viewProj.m[3][2] * w.z + viewProj.m[3][3];
-                    return clipW != 0.f ? clipZ / clipW : clipZ; // z-버퍼 값(클수록 카메라에서 멀다)
+                    // 중심점 하나가 아니라 실제로 그려지는 사각형의 네 모서리 중 카메라에서 가장 먼 지점을
+                    // 기준으로 삼는다. bg처럼 크고 대각선으로 회전된(rotationY) 넓은 패널은 중심 좌표
+                    // 하나만으로는 실제 깊이 범위를 대표하지 못해, 더 앞에 있어야 할 파츠보다 나중에(=위에)
+                    // 그려지는 문제가 있었다 - Render()의 isFloor 분기(Scale에 size.y 대신 size.z를 쓰는
+                    // 것)와 extraTilt/extraRotation 적용 순서를 그대로 따라가야 실제 렌더링과 일치한다.
+                    float halfX = p->size.x * 0.5f;
+                    float halfOther = (p->isFloor ? p->size.z : p->size.y) * 0.5f;
+                    float tiltRadians = p->extraXRotation + (p->isFloor ? kHalfPi : 0.f);
+
+                    float best = -FLT_MAX;
+                    for (float sx : { -1.f, 1.f })
+                    {
+                        for (float sy : { -1.f, 1.f })
+                        {
+                            Vector3 corner(sx * halfX, sy * halfOther, 0.f);
+                            corner = RotateX(corner, tiltRadians);
+                            corner = RotateY(corner, p->extraYRotation);
+                            corner = corner + p->localPosition;
+
+                            Vector3 w = objectPivot + RotateY(corner, groupAngle);
+                            float clipZ = viewProj.m[2][0] * w.x + viewProj.m[2][1] * w.y
+                                + viewProj.m[2][2] * w.z + viewProj.m[2][3];
+                            float clipW = viewProj.m[3][0] * w.x + viewProj.m[3][1] * w.y
+                                + viewProj.m[3][2] * w.z + viewProj.m[3][3];
+                            float depth = clipW != 0.f ? clipZ / clipW : clipZ;
+                            if (depth > best) best = depth;
+                        }
+                    }
+                    return best; // z-버퍼 값(클수록 카메라에서 멀다)
                 };
             return ndcDepth(a) > ndcDepth(b); // 먼 것부터(내림차순) 그린다
         });
