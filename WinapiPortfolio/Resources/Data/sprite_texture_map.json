@@ -303,23 +303,6 @@
           }
         },
         {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 142.5,
-            "y": 34.27,
-            "z": -144.37
-          },
-          "size": {
-            "x": 193.36,
-            "y": 75.71,
-            "z": 193.36
-          }
-        },
-        {
           "textureIndex": 2,
           "textureWidth": 2048,
           "textureHeight": 1024,
@@ -1902,15 +1885,41 @@
             "height": 215
           },
           "position": {
-            "x": 292.09,
+            "x": 150.0,
             "y": 19.31,
-            "z": 0.0
+            "z": 200.0
           },
           "size": {
             "x": 117.77,
             "y": 36.62,
             "z": 400.0
-          }
+          },
+          "rotationY": 90
+        },
+        {
+          "textureIndex": 18,
+          "textureWidth": 512,
+          "textureHeight": 512,
+          "tiled": true,
+          "repeatX": 1,
+          "repeatY": 2,
+          "atlasRectPx": {
+            "x": 0,
+            "y": 0,
+            "width": 512,
+            "height": 512
+          },
+          "position": {
+            "x": 150.0,
+            "y": 42.34,
+            "z": 144.6
+          },
+          "size": {
+            "x": 300.0,
+            "y": 50.0,
+            "z": 120.0
+          },
+          "rotationX": 22.57
         },
         {
           "textureIndex": 18,
@@ -1928,12 +1937,12 @@
           "position": {
             "x": 150.0,
             "y": 65.37,
-            "z": 0.0
+            "z": -55.4
           },
           "size": {
             "x": 300.0,
             "y": 135.86,
-            "z": 400.0
+            "z": 289.19
           }
         },
         {
@@ -1945,18 +1954,41 @@
             "x": 1093,
             "y": 4,
             "width": 952,
-            "height": 705
+            "height": 1020
           },
           "position": {
             "x": 228.93,
-            "y": 333.69,
+            "y": 450.67,
             "z": -43.16
           },
           "size": {
             "x": 467.92,
-            "y": 532.62,
+            "y": 770.6,
             "z": 541.41
           }
+        },
+        {
+          "textureIndex": 2,
+          "textureWidth": 2048,
+          "textureHeight": 1024,
+          "tiled": false,
+          "atlasRectPx": {
+            "x": 1093,
+            "y": 4,
+            "width": 952,
+            "height": 1020
+          },
+          "position": {
+            "x": 228.93,
+            "y": 450.67,
+            "z": -43.16
+          },
+          "size": {
+            "x": 467.92,
+            "y": 770.6,
+            "z": 541.41
+          },
+          "rotationY": 90
         },
         {
           "textureIndex": 12,
@@ -1972,12 +2004,12 @@
             "height": 1023
           },
           "position": {
-            "x": 0.0,
-            "y": 800.0,
-            "z": 0.0
+            "x": 150.0,
+            "y": 765.37,
+            "z": -200.0
           },
           "size": {
-            "x": 0.0,
+            "x": 300.0,
             "y": 1400.0,
             "z": 400.0
           }
@@ -2004,15 +2036,41 @@
             "height": 215
           },
           "position": {
-            "x": 292.09,
+            "x": 150.0,
             "y": 19.57,
-            "z": -23.1
+            "z": 200.0
           },
           "size": {
             "x": 117.77,
             "y": 37.13,
             "z": 353.81
-          }
+          },
+          "rotationY": 90
+        },
+        {
+          "textureIndex": 18,
+          "textureWidth": 512,
+          "textureHeight": 512,
+          "tiled": true,
+          "repeatX": 1,
+          "repeatY": 2,
+          "atlasRectPx": {
+            "x": 0,
+            "y": 0,
+            "width": 512,
+            "height": 512
+          },
+          "position": {
+            "x": 150.0,
+            "y": 42.47,
+            "z": 144.54
+          },
+          "size": {
+            "x": 300.0,
+            "y": 50.0,
+            "z": 120.0
+          },
+          "rotationX": 22.44
         },
         {
           "textureIndex": 18,
@@ -2030,12 +2088,12 @@
           "position": {
             "x": 150.0,
             "y": 65.37,
-            "z": 0.0
+            "z": -55.46
           },
           "size": {
             "x": 300.0,
             "y": 135.86,
-            "z": 400.0
+            "z": 289.08
           }
         },
         {
@@ -2047,18 +2105,41 @@
             "x": 1093,
             "y": 4,
             "width": 952,
-            "height": 705
+            "height": 1020
           },
           "position": {
             "x": 228.93,
-            "y": 333.69,
+            "y": 450.67,
             "z": -43.16
           },
           "size": {
             "x": 467.92,
-            "y": 532.62,
+            "y": 770.6,
             "z": 541.41
           }
+        },
+        {
+          "textureIndex": 2,
+          "textureWidth": 2048,
+          "textureHeight": 1024,
+          "tiled": false,
+          "atlasRectPx": {
+            "x": 1093,
+            "y": 4,
+            "width": 952,
+            "height": 1020
+          },
+          "position": {
+            "x": 228.93,
+            "y": 450.67,
+            "z": -43.16
+          },
+          "size": {
+            "x": 467.92,
+            "y": 770.6,
+            "z": 541.41
+          },
+          "rotationY": 90
         },
         {
           "textureIndex": 12,
@@ -2074,12 +2155,12 @@
             "height": 1023
           },
           "position": {
-            "x": 0.0,
-            "y": 800.0,
-            "z": 0.0
+            "x": 150.0,
+            "y": 765.37,
+            "z": -200.0
           },
           "size": {
-            "x": 0.0,
+            "x": 300.0,
             "y": 1400.0,
             "z": 400.0
           }
@@ -2106,15 +2187,41 @@
             "height": 215
           },
           "position": {
-            "x": 292.09,
+            "x": 150.0,
             "y": 19.57,
-            "z": -23.1
+            "z": 200.0
           },
           "size": {
             "x": 117.77,
             "y": 37.13,
             "z": 353.81
-          }
+          },
+          "rotationY": 90
+        },
+        {
+          "textureIndex": 18,
+          "textureWidth": 512,
+          "textureHeight": 512,
+          "tiled": true,
+          "repeatX": 1,
+          "repeatY": 2,
+          "atlasRectPx": {
+            "x": 0,
+            "y": 0,
+            "width": 512,
+            "height": 512
+          },
+          "position": {
+            "x": 150.0,
+            "y": 42.47,
+            "z": 144.54
+          },
+          "size": {
+            "x": 300.0,
+            "y": 50.0,
+            "z": 120.0
+          },
+          "rotationX": 22.44
         },
         {
           "textureIndex": 18,
@@ -2132,12 +2239,12 @@
           "position": {
             "x": 150.0,
             "y": 65.37,
-            "z": 0.0
+            "z": -55.46
           },
           "size": {
             "x": 300.0,
             "y": 135.86,
-            "z": 400.0
+            "z": 289.08
           }
         },
         {
@@ -2149,40 +2256,41 @@
             "x": 1093,
             "y": 4,
             "width": 952,
-            "height": 705
+            "height": 1020
           },
           "position": {
             "x": 228.93,
-            "y": 333.69,
+            "y": 450.67,
             "z": -43.16
           },
           "size": {
             "x": 467.92,
-            "y": 532.62,
+            "y": 770.6,
             "z": 541.41
           }
         },
         {
-          "textureIndex": 18,
-          "textureWidth": 512,
-          "textureHeight": 512,
+          "textureIndex": 2,
+          "textureWidth": 2048,
+          "textureHeight": 1024,
           "tiled": false,
           "atlasRectPx": {
-            "x": 381,
-            "y": 0,
-            "width": 131,
-            "height": 158
+            "x": 1093,
+            "y": 4,
+            "width": 952,
+            "height": 1020
           },
           "position": {
-            "x": 241.87,
-            "y": 49.9,
-            "z": 160.16
+            "x": 228.93,
+            "y": 450.67,
+            "z": -43.16
           },
           "size": {
-            "x": 86.16,
-            "y": 70.21,
-            "z": 87.79
-          }
+            "x": 467.92,
+            "y": 770.6,
+            "z": 541.41
+          },
+          "rotationY": 90
         },
         {
           "textureIndex": 12,
@@ -2198,12 +2306,12 @@
             "height": 1023
           },
           "position": {
-            "x": 0.0,
-            "y": 800.0,
-            "z": 0.0
+            "x": 150.0,
+            "y": 765.37,
+            "z": -200.0
           },
           "size": {
-            "x": 0.0,
+            "x": 300.0,
             "y": 1400.0,
             "z": 400.0
           }
@@ -2230,15 +2338,41 @@
             "height": 215
           },
           "position": {
-            "x": 293.46,
+            "x": 150.0,
             "y": 19.57,
-            "z": 23.1
+            "z": 200.0
           },
           "size": {
             "x": 115.04,
             "y": 37.13,
             "z": 353.81
-          }
+          },
+          "rotationY": 90
+        },
+        {
+          "textureIndex": 18,
+          "textureWidth": 512,
+          "textureHeight": 512,
+          "tiled": true,
+          "repeatX": 1,
+          "repeatY": 2,
+          "atlasRectPx": {
+            "x": 0,
+            "y": 0,
+            "width": 512,
+            "height": 512
+          },
+          "position": {
+            "x": 150.0,
+            "y": 42.78,
+            "z": 144.67
+          },
+          "size": {
+            "x": 300.0,
+            "y": 50.0,
+            "z": 120.0
+          },
+          "rotationX": 22.76
         },
         {
           "textureIndex": 18,
@@ -2256,12 +2390,12 @@
           "position": {
             "x": 150.0,
             "y": 65.99,
-            "z": 0.0
+            "z": -55.33
           },
           "size": {
             "x": 300.0,
             "y": 134.63,
-            "z": 400.0
+            "z": 289.34
           }
         },
         {
@@ -2273,18 +2407,41 @@
             "x": 1093,
             "y": 4,
             "width": 952,
-            "height": 705
+            "height": 1020
           },
           "position": {
             "x": 228.93,
-            "y": 333.69,
+            "y": 451.29,
             "z": -43.16
           },
           "size": {
             "x": 467.92,
-            "y": 532.62,
+            "y": 770.6,
             "z": 541.41
           }
+        },
+        {
+          "textureIndex": 2,
+          "textureWidth": 2048,
+          "textureHeight": 1024,
+          "tiled": false,
+          "atlasRectPx": {
+            "x": 1093,
+            "y": 4,
+            "width": 952,
+            "height": 1020
+          },
+          "position": {
+            "x": 228.93,
+            "y": 451.29,
+            "z": -43.16
+          },
+          "size": {
+            "x": 467.92,
+            "y": 770.6,
+            "z": 541.41
+          },
+          "rotationY": 90
         },
         {
           "textureIndex": 12,
@@ -2300,12 +2457,12 @@
             "height": 1023
           },
           "position": {
-            "x": 0.0,
-            "y": 800.0,
-            "z": 0.0
+            "x": 150.0,
+            "y": 765.99,
+            "z": -200.0
           },
           "size": {
-            "x": 0.0,
+            "x": 300.0,
             "y": 1400.0,
             "z": 400.0
           }
@@ -2384,23 +2541,6 @@
             "x": 250.59,
             "y": 196.0,
             "z": 0.1
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 192.02,
-            "y": 196.01,
-            "z": 69.22
-          },
-          "size": {
-            "x": 366.21,
-            "y": 199.35,
-            "z": 179.69
           }
         },
         {
@@ -2646,23 +2786,6 @@
           }
         },
         {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 177.01,
-            "y": 194.01,
-            "z": 69.22
-          },
-          "size": {
-            "x": 326.66,
-            "y": 199.35,
-            "z": 179.74
-          }
-        },
-        {
           "textureIndex": 18,
           "textureWidth": 512,
           "textureHeight": 512,
@@ -2785,23 +2908,6 @@
           }
         },
         {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": -131.59,
-            "y": 174.98,
-            "z": 180.28
-          },
-          "size": {
-            "x": 154.3,
-            "y": 136.44,
-            "z": 252.59
-          }
-        },
-        {
           "textureIndex": 2,
           "textureWidth": 2048,
           "textureHeight": 1024,
@@ -2843,23 +2949,6 @@
             "x": 162.5,
             "y": 125.68,
             "z": 0.07
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 190.55,
-            "y": 160.88,
-            "z": -22.35
-          },
-          "size": {
-            "x": 287.21,
-            "y": 142.74,
-            "z": 179.74
           }
         },
         {
@@ -3059,23 +3148,6 @@
           }
         },
         {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": -129.11,
-            "y": 184.6,
-            "z": 173.41
-          },
-          "size": {
-            "x": 154.3,
-            "y": 136.44,
-            "z": 252.59
-          }
-        },
-        {
           "textureIndex": 2,
           "textureWidth": 2048,
           "textureHeight": 1024,
@@ -3095,23 +3167,6 @@
             "x": 154.3,
             "y": 147.07,
             "z": 0.08
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 4.96,
-            "y": 91.81,
-            "z": 232.47
-          },
-          "size": {
-            "x": 107.13,
-            "y": 88.43,
-            "z": 134.45
           }
         },
         {
@@ -3473,23 +3528,6 @@
           }
         },
         {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": -63.01,
-            "y": 176.25,
-            "z": 171.42
-          },
-          "size": {
-            "x": 154.3,
-            "y": 136.44,
-            "z": 252.59
-          }
-        },
-        {
           "textureIndex": 18,
           "textureWidth": 512,
           "textureHeight": 512,
@@ -3568,23 +3606,6 @@
           }
         },
         {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": -87.37,
-            "y": 176.26,
-            "z": 192.84
-          },
-          "size": {
-            "x": 240.33,
-            "y": 136.46,
-            "z": 252.59
-          }
-        },
-        {
           "textureIndex": 2,
           "textureWidth": 2048,
           "textureHeight": 1024,
@@ -3629,23 +3650,6 @@
           }
         },
         {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 172.87,
-            "y": 159.91,
-            "z": -106.86
-          },
-          "size": {
-            "x": 287.21,
-            "y": 139.09,
-            "z": 111.89
-          }
-        },
-        {
           "textureIndex": 2,
           "textureWidth": 2048,
           "textureHeight": 1024,
@@ -3665,23 +3669,6 @@
             "x": 103.81,
             "y": 80.27,
             "z": 0.04
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 221.03,
-            "y": 131.55,
-            "z": 12.83
-          },
-          "size": {
-            "x": 190.87,
-            "y": 93.15,
-            "z": 86.38
           }
         },
         {
@@ -3905,23 +3892,6 @@
           }
         },
         {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 156.03,
-            "y": 174.21,
-            "z": -110.08
-          },
-          "size": {
-            "x": 287.21,
-            "y": 152.67,
-            "z": 117.77
-          }
-        },
-        {
           "textureIndex": 2,
           "textureWidth": 2048,
           "textureHeight": 1024,
@@ -3941,40 +3911,6 @@
             "x": 91.43,
             "y": 70.7,
             "z": 0.04
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 196.62,
-            "y": 123.71,
-            "z": 152.49
-          },
-          "size": {
-            "x": 287.21,
-            "y": 152.67,
-            "z": 117.77
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": -161.37,
-            "y": 167.43,
-            "z": -110.04
-          },
-          "size": {
-            "x": 287.16,
-            "y": 152.67,
-            "z": 117.77
           }
         },
         {
@@ -4218,40 +4154,6 @@
           }
         },
         {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": -221.47,
-            "y": 162.31,
-            "z": -111.87
-          },
-          "size": {
-            "x": 287.21,
-            "y": 153.12,
-            "z": 90.28
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 156.03,
-            "y": 168.35,
-            "z": -111.86
-          },
-          "size": {
-            "x": 287.21,
-            "y": 140.95,
-            "z": 90.28
-          }
-        },
-        {
           "textureIndex": 2,
           "textureWidth": 2048,
           "textureHeight": 1024,
@@ -4293,23 +4195,6 @@
             "x": 91.43,
             "y": 70.7,
             "z": 0.04
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 193.14,
-            "y": 96.18,
-            "z": 137.97
-          },
-          "size": {
-            "x": 212.89,
-            "y": 86.95,
-            "z": 90.28
           }
         },
         {
@@ -4531,40 +4416,6 @@
           }
         },
         {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": -177.91,
-            "y": 79.12,
-            "z": 173.29
-          },
-          "size": {
-            "x": 221.09,
-            "y": 96.66,
-            "z": 90.28
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 208.3,
-            "y": 168.38,
-            "z": -111.87
-          },
-          "size": {
-            "x": 287.21,
-            "y": 141.01,
-            "z": 90.27
-          }
-        },
-        {
           "textureIndex": 2,
           "textureWidth": 2048,
           "textureHeight": 1024,
@@ -4584,23 +4435,6 @@
             "x": 147.36,
             "y": 120.31,
             "z": 0.06
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": -144.83,
-            "y": 168.35,
-            "z": -111.87
-          },
-          "size": {
-            "x": 287.11,
-            "y": 140.95,
-            "z": 90.27
           }
         },
         {
@@ -4844,23 +4678,6 @@
           }
         },
         {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": -196.45,
-            "y": 90.13,
-            "z": 176.28
-          },
-          "size": {
-            "x": 197.02,
-            "y": 140.95,
-            "z": 90.28
-          }
-        },
-        {
           "textureIndex": 2,
           "textureWidth": 2048,
           "textureHeight": 1024,
@@ -4880,40 +4697,6 @@
             "x": 136.13,
             "y": 106.25,
             "z": 0.05
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": -151.3,
-            "y": 168.39,
-            "z": -140.4
-          },
-          "size": {
-            "x": 287.16,
-            "y": 141.03,
-            "z": 90.28
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 157.16,
-            "y": 168.39,
-            "z": -146.28
-          },
-          "size": {
-            "x": 287.21,
-            "y": 141.02,
-            "z": 90.28
           }
         },
         {
@@ -5381,23 +5164,6 @@
           }
         },
         {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 124.63,
-            "y": 150.04,
-            "z": 127.13
-          },
-          "size": {
-            "x": 279.59,
-            "y": 159.65,
-            "z": 260.64
-          }
-        },
-        {
           "textureIndex": 2,
           "textureWidth": 2048,
           "textureHeight": 1024,
@@ -5417,23 +5183,6 @@
             "x": 155.66,
             "y": 150.59,
             "z": 0.07
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": -139.16,
-            "y": 137.09,
-            "z": 133.8
-          },
-          "size": {
-            "x": 279.49,
-            "y": 150.59,
-            "z": 260.74
           }
         },
         {
@@ -5459,23 +5208,6 @@
           }
         },
         {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": -139.16,
-            "y": 148.67,
-            "z": -124.71
-          },
-          "size": {
-            "x": 279.49,
-            "y": 148.05,
-            "z": 260.74
-          }
-        },
-        {
           "textureIndex": 2,
           "textureWidth": 2048,
           "textureHeight": 1024,
@@ -5495,23 +5227,6 @@
             "x": 124.22,
             "y": 127.54,
             "z": 0.06
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 172.4,
-            "y": 142.83,
-            "z": -105.07
-          },
-          "size": {
-            "x": 279.49,
-            "y": 127.54,
-            "z": 260.74
           }
         }
       ]
@@ -5566,23 +5281,6 @@
             "x": 135.35,
             "y": 37.13,
             "z": 400.0
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 201.54,
-            "y": 163.73,
-            "z": 127.13
-          },
-          "size": {
-            "x": 342.97,
-            "y": 187.02,
-            "z": 90.28
           }
         },
         {
@@ -5728,23 +5426,6 @@
           }
         },
         {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 201.54,
-            "y": 163.73,
-            "z": 127.13
-          },
-          "size": {
-            "x": 342.97,
-            "y": 187.02,
-            "z": 90.28
-          }
-        },
-        {
           "textureIndex": 2,
           "textureWidth": 2048,
           "textureHeight": 1024,
@@ -5884,23 +5565,6 @@
             "x": 135.35,
             "y": 37.13,
             "z": 353.81
-          }
-        },
-        {
-          "textureIndex": null,
-          "textureWidth": 0,
-          "textureHeight": 0,
-          "tiled": false,
-          "atlasRectPx": null,
-          "position": {
-            "x": 201.54,
-            "y": 163.73,
-            "z": 127.13
-          },
-          "size": {
-            "x": 342.97,
-            "y": 187.02,
-            "z": 90.28
           }
         },
         {
