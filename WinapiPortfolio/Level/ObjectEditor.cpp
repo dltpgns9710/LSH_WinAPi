@@ -132,6 +132,7 @@ void ObjectEditor::LoadSpriteAt(int index)
         // 그 정보가 json에 없어서 json만 보고 렌더링하면 재현이 안 됐다. 지금은 그 텍스처를 쓰는
         // 파츠가 전부 병합되어 사라졌고, 필요한 회전은 각 파츠의 rotationY 필드에 직접 기록돼 있다.
         part.extraYRotation = tex.rotationY * static_cast<float>(MathUtil::pi / 180.0);
+        part.extraXRotation = tex.rotationX * static_cast<float>(MathUtil::pi / 180.0);
 
         currentParts.push_back(std::move(part));
     }
@@ -199,6 +200,9 @@ void ObjectEditor::Render()
         if (pixelW <= 0.f || pixelH <= 0.f) continue;
 
         Matrix4x4 extraRotation = Matrix4x4::RotationY(part.extraYRotation);
+        // 계단처럼 평면 자체를 기울여야 하는 파츠용 추가 회전(pitch). 스케일 직후, 즉 파츠가 아직
+        // 자기 중심(원점)에 있는 상태에서 적용해야 파츠 자신의 중심을 축으로 기울어진다.
+        Matrix4x4 extraTilt = Matrix4x4::RotationX(part.extraXRotation);
 
         // 법선 축은 size(x,y,z)로 추정하지 않고, 바닥(isFloor)이 아니면 기본적으로 Z축(정면을 바라보는
         // 수직 평면)으로 그린다. sprite마다 파츠가 서로 다른 축으로 추정되면 같은 오브젝트인데 서로 다른
@@ -210,6 +214,7 @@ void ObjectEditor::Render()
             localModel = Matrix4x4::Translation(part.localPosition)
                 * extraRotation
                 * Matrix4x4::RotationX(kHalfPi)
+                * extraTilt
                 * Matrix4x4::Scale(Vector3(part.size.x / pixelW, part.size.z / pixelH, 1.f))
                 * Matrix4x4::Translation(Vector3(-pixelW / 2.f, -pixelH / 2.f, 0.f));
         }
@@ -218,6 +223,7 @@ void ObjectEditor::Render()
             // 법선 = Z축 (정면을 바라보는 수직 평면) - 바닥이 아닌 모든 파츠의 기본값
             localModel = Matrix4x4::Translation(part.localPosition)
                 * extraRotation
+                * extraTilt
                 * Matrix4x4::Scale(Vector3(part.size.x / pixelW, -part.size.y / pixelH, 1.f))
                 * Matrix4x4::Translation(Vector3(-pixelW / 2.f, -pixelH / 2.f, 0.f));
         }
