@@ -88,19 +88,19 @@
     "4": [
       {
         "name": "d01_g01",
-        "blockRot": 1
+        "blockRot": 2
       }
     ],
     "5": [
       {
         "name": "d01_g02",
-        "blockRot": 3
+        "blockRot": 0
       }
     ],
     "6": [
       {
         "name": "d01_g03",
-        "blockRot": 3
+        "blockRot": 0
       }
     ],
     "9": [
