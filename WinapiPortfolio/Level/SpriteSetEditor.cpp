@@ -53,7 +53,7 @@ void SpriteSetEditor::Load()
     spriteSetKeys.reserve(dungeonData.spriteSets.size());
     for (const auto& [key, parts] : dungeonData.spriteSets)
     {
-        spriteSetKeys.push_back(std::stoi(key));
+        spriteSetKeys.push_back(key);
     }
     std::sort(spriteSetKeys.begin(), spriteSetKeys.end());
 

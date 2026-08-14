@@ -69,6 +69,11 @@ private:
     SpriteTextureMapData spriteMapData;
 
     std::unordered_map<std::string, std::vector<PartTemplate>> spriteTemplateCache;
+
+    // (파일명+atlasRect+tiled 설정) 조합별 크롭 캐시. 서로 다른 스프라이트 이름이 같은 크롭을 참조해도
+    // (예: *_Unique 변형들이 같은 코너 텍스처를 공유) SpriteSheet::CreateSubRegion/CreateTiledRegion을
+    // 한 번만 호출하도록 spriteTemplateCache보다 한 단계 더 세밀하게 중복 생성을 막는다.
+    std::unordered_map<std::string, std::shared_ptr<SpriteSheet>> croppedSheetCache;
     std::vector<PlacedPart> placedParts; // Load() 시점에 던전 전체에 대해 한 번만 채워짐
 
     // 카메라가 현재 바라보는 방향(그리드 기준 90도 단위, 0=+Z). A/D 회전 시 함께 갱신하며,

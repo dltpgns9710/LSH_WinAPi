@@ -150,20 +150,37 @@ const std::vector<D01::PartTemplate>& D01::GetOrBuildSpriteTemplate(const std::s
 
             const AtlasRect& rect = *tex.atlasRectPx;
             PartTemplate part;
-            if (tex.tiled)
+
+            // 서로 다른 스프라이트 이름이 같은 (파일+atlasRect+tiled 설정) 조합을 참조하는 경우
+            // (예: *_Unique 변형들이 같은 코너 텍스처를 공유) CreateSubRegion/CreateTiledRegion을
+            // 다시 호출하지 않도록, 크롭 결과 자체를 캐시 키로 재사용한다.
+            std::string cropKey = fileName + ':' + std::to_string(rect.x) + ',' + std::to_string(rect.y)
+                + ',' + std::to_string(rect.width) + ',' + std::to_string(rect.height)
+                + (tex.tiled ? (":T" + std::to_string(tex.repeatX) + 'x' + std::to_string(tex.repeatY)) : ":S");
+
+            auto cachedCrop = croppedSheetCache.find(cropKey);
+            if (cachedCrop != croppedSheetCache.end())
             {
-                part.sheet = fullSheet->CreateTiledRegion(
-                    static_cast<float>(rect.x), static_cast<float>(rect.y),
-                    static_cast<float>(rect.x + rect.width), static_cast<float>(rect.y + rect.height),
-                    tex.repeatX, tex.repeatY);
+                part.sheet = cachedCrop->second;
             }
             else
             {
-                part.sheet = fullSheet->CreateSubRegion(
-                    static_cast<float>(rect.x), static_cast<float>(rect.y),
-                    static_cast<float>(rect.x + rect.width), static_cast<float>(rect.y + rect.height));
+                if (tex.tiled)
+                {
+                    part.sheet = fullSheet->CreateTiledRegion(
+                        static_cast<float>(rect.x), static_cast<float>(rect.y),
+                        static_cast<float>(rect.x + rect.width), static_cast<float>(rect.y + rect.height),
+                        tex.repeatX, tex.repeatY);
+                }
+                else
+                {
+                    part.sheet = fullSheet->CreateSubRegion(
+                        static_cast<float>(rect.x), static_cast<float>(rect.y),
+                        static_cast<float>(rect.x + rect.width), static_cast<float>(rect.y + rect.height));
+                }
+                if (!part.sheet) continue;
+                croppedSheetCache.emplace(std::move(cropKey), part.sheet);
             }
-            if (!part.sheet) continue;
 
             part.localPosition = tex.position;
             part.size = tex.size;

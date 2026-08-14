@@ -42,9 +42,8 @@ private:
     DungeonData dungeonData;
     SpriteTextureMapData spriteMapData;
 
-    // dungeonData.spriteSets의 키(spriteSetIndex)를 정수로 정렬해 둔 목록. map의 키는 문자열이라
-    // 그대로 순회하면 "10"이 "2"보다 앞에 오는 사전식 순서가 되므로, Q/E로 숫자 순서대로 훑어보려면
-    // 미리 정수로 파싱해 정렬해둬야 한다.
+    // dungeonData.spriteSets(unordered_map)의 키(spriteSetIndex)를 정렬해 둔 목록. 해시맵이라 순회
+    // 순서가 정해져 있지 않으므로, Q/E로 숫자 순서대로 훑어보려면 미리 정렬해둬야 한다.
     std::vector<int> spriteSetKeys;
     int currentListIndex = 0;
     std::vector<RenderPart> currentParts;

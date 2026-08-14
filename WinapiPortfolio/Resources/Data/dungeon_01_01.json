@@ -1221,7 +1221,7 @@
       "y": 2,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 2,
+      "cellRot": 0,
       "spriteSetIndex": 32
     },
     {
@@ -1546,7 +1546,7 @@
       "y": 3,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 1,
+      "cellRot": 3,
       "spriteSetIndex": 56
     },
     {
@@ -1988,7 +1988,7 @@
       "y": 4,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 0,
+      "cellRot": 2,
       "spriteSetIndex": 42
     },
     {
@@ -1997,7 +1997,7 @@
       "y": 4,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 3,
+      "cellRot": 1,
       "spriteSetIndex": 41
     },
     {
@@ -2033,7 +2033,7 @@
       "y": 4,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 1,
+      "cellRot": 3,
       "spriteSetIndex": 33
     },
     {
@@ -2051,7 +2051,7 @@
       "y": 4,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 2,
+      "cellRot": 0,
       "spriteSetIndex": 40
     },
     {
@@ -2060,7 +2060,7 @@
       "y": 4,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 2,
+      "cellRot": 0,
       "spriteSetIndex": 41
     },
     {
@@ -2821,7 +2821,7 @@
       "y": 7,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 0,
+      "cellRot": 2,
       "spriteSetIndex": 33
     },
     {
@@ -2857,7 +2857,7 @@
       "y": 7,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 0,
+      "cellRot": 2,
       "spriteSetIndex": 41
     },
     {
@@ -5023,7 +5023,7 @@
       "y": 14,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 0,
+      "cellRot": 2,
       "spriteSetIndex": 33
     },
     {
@@ -5041,7 +5041,7 @@
       "y": 14,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 2,
+      "cellRot": 0,
       "spriteSetIndex": 40
     },
     {
@@ -5077,7 +5077,7 @@
       "y": 14,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 2,
+      "cellRot": 0,
       "spriteSetIndex": 41
     },
     {
@@ -5095,7 +5095,7 @@
       "y": 14,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 0,
+      "cellRot": 2,
       "spriteSetIndex": 33
     },
     {
@@ -5113,7 +5113,7 @@
       "y": 14,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 2,
+      "cellRot": 0,
       "spriteSetIndex": 32
     },
     {
@@ -5361,7 +5361,7 @@
       "y": 15,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 1,
+      "cellRot": 3,
       "spriteSetIndex": 59
     },
     {
@@ -5451,7 +5451,7 @@
       "y": 15,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 3,
+      "cellRot": 1,
       "spriteSetIndex": 41
     },
     {
@@ -5676,7 +5676,7 @@
       "y": 16,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 1,
+      "cellRot": 3,
       "spriteSetIndex": 32
     },
     {
@@ -5712,7 +5712,7 @@
       "y": 16,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 3,
+      "cellRot": 1,
       "spriteSetIndex": 41
     },
     {
@@ -5883,7 +5883,7 @@
       "y": 16,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 2,
+      "cellRot": 0,
       "spriteSetIndex": 41
     },
     {
@@ -6135,7 +6135,7 @@
       "y": 17,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 1,
+      "cellRot": 3,
       "spriteSetIndex": 33
     },
     {
@@ -6342,7 +6342,7 @@
       "y": 18,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 1,
+      "cellRot": 3,
       "spriteSetIndex": 50
     },
     {
@@ -6360,7 +6360,7 @@
       "y": 18,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 2,
+      "cellRot": 0,
       "spriteSetIndex": 32
     },
     {
@@ -6621,7 +6621,7 @@
       "y": 19,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 1,
+      "cellRot": 3,
       "spriteSetIndex": 48
     },
     {
@@ -6657,7 +6657,7 @@
       "y": 19,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 3,
+      "cellRot": 1,
       "spriteSetIndex": 47
     },
     {
@@ -6765,7 +6765,7 @@
       "y": 19,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 1,
+      "cellRot": 3,
       "spriteSetIndex": 33
     },
     {
@@ -6909,7 +6909,7 @@
       "y": 20,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 0,
+      "cellRot": 2,
       "spriteSetIndex": 37
     },
     {
@@ -7267,7 +7267,7 @@
       "y": 21,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 0,
+      "cellRot": 2,
       "spriteSetIndex": 40
     },
     {
@@ -7285,7 +7285,7 @@
       "y": 21,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 0,
+      "cellRot": 2,
       "spriteSetIndex": 41
     },
     {
@@ -7294,7 +7294,7 @@
       "y": 21,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 0,
+      "cellRot": 2,
       "spriteSetIndex": 40
     },
     {
@@ -7357,7 +7357,7 @@
       "y": 21,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 2,
+      "cellRot": 0,
       "spriteSetIndex": 39
     },
     {
@@ -7699,7 +7699,7 @@
       "y": 22,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 1,
+      "cellRot": 3,
       "spriteSetIndex": 61
     },
     {
