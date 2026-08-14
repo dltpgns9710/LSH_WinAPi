@@ -41,11 +41,8 @@
     "d01_w01_0101_Unique_2",
     "d01_w01_0101_Unique_3",
     "d01_w02_0101",
-    "d01_w02_0101_Alt",
     "d01_w03_0101",
-    "d01_w03_0101_Alt",
     "d01_w04_0101",
-    "d01_w04_0101_Alt",
     "d01_w05_0111",
     "d01_w06_0111",
     "d01_w07_0111",
@@ -57,12 +54,7 @@
     "d01_w14_0101",
     "d01_w16_0101",
     "d01_w16_0101_Unique",
-    "d01_w16_0101_Unique_2",
-    "d01_w01_0101_Alt",
-    "d01_w01_0101_Unique_3_Alt",
-    "d01_w01_0101_Unique_Alt",
-    "d01_w16_0101_Alt",
-    "d01_w16_0101_Unique_Alt"
+    "d01_w16_0101_Unique_2"
   ],
   "note": "spriteSets: 칩 조합(1~2개 파츠) 정의를 chipInfo 인덱스별로 1세트만 저장. 각 파츠는 texture-map(sprite_texture_map.json)의 name으로 조회. blockRot: 해당 파츠의 자체 회전(0~3, 90도 단위), cellRot: 칸 전체 회전(0~3, 90도 단위). 렌더링 시 World = RotY(cellRot*90) * RotY(blockRot*90) * Translate(partLocalPos) 순으로 적용. spriteSetIndex가 가리키는 spriteSets 항목이 빈 배열([])이면 해당 칸은 그릴 파츠가 없음(NONE).",
   "spriteSets": {
@@ -88,19 +80,19 @@
     "4": [
       {
         "name": "d01_g01",
-        "blockRot": 1
+        "blockRot": 0
       }
     ],
     "5": [
       {
         "name": "d01_g02",
-        "blockRot": 3
+        "blockRot": 0
       }
     ],
     "6": [
       {
         "name": "d01_g03",
-        "blockRot": 3
+        "blockRot": 0
       }
     ],
     "9": [
@@ -125,19 +117,11 @@
       {
         "name": "d01_w01_0101",
         "blockRot": 0
-      },
-      {
-        "name": "d01_w01_0101_Alt",
-        "blockRot": 0
       }
     ],
     "13": [
       {
         "name": "d01_w02_0101",
-        "blockRot": 0
-      },
-      {
-        "name": "d01_w02_0101_Alt",
         "blockRot": 0
       }
     ],
@@ -145,19 +129,11 @@
       {
         "name": "d01_w03_0101",
         "blockRot": 0
-      },
-      {
-        "name": "d01_w03_0101_Alt",
-        "blockRot": 0
       }
     ],
     "15": [
       {
         "name": "d01_w04_0101",
-        "blockRot": 0
-      },
-      {
-        "name": "d01_w04_0101_Alt",
         "blockRot": 0
       }
     ],
@@ -219,10 +195,6 @@
       {
         "name": "d01_w16_0101",
         "blockRot": 0
-      },
-      {
-        "name": "d01_w16_0101_Alt",
-        "blockRot": 0
       }
     ],
     "28": [
@@ -231,8 +203,8 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w16_0101_Alt",
-        "blockRot": 0
+        "name": "d01_w16_0101",
+        "blockRot": 2
       }
     ],
     "29": [
@@ -241,14 +213,14 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w03_0101_Alt",
-        "blockRot": 0
+        "name": "d01_w03_0101",
+        "blockRot": 2
       }
     ],
     "30": [
       {
-        "name": "d01_w01_0101_Alt",
-        "blockRot": 0
+        "name": "d01_w01_0101",
+        "blockRot": 2
       },
       {
         "name": "d01_w02_0101",
@@ -257,8 +229,8 @@
     ],
     "31": [
       {
-        "name": "d01_w01_0101_Alt",
-        "blockRot": 0
+        "name": "d01_w01_0101",
+        "blockRot": 2
       },
       {
         "name": "d01_w04_0101",
@@ -268,6 +240,26 @@
     "32": [
       {
         "name": "d01_w01_0101",
+        "blockRot": 2
+      },
+      {
+        "name": "d01_w13_0001",
+        "blockRot": 0
+      }
+    ],
+    "33": [
+      {
+        "name": "d01_w16_0101",
+        "blockRot": 2
+      },
+      {
+        "name": "d01_w14_0101",
+        "blockRot": 0
+      }
+    ],
+    "34": [
+      {
+        "name": "d01_w05_0111",
         "blockRot": 0
       },
       {
@@ -275,32 +267,20 @@
         "blockRot": 2
       }
     ],
-    "33": [
-      {
-        "name": "d01_w16_0101",
-        "blockRot": 0
-      },
-      {
-        "name": "d01_w14_0101",
-        "blockRot": 2
-      }
-    ],
-    "34": [
-      {
-        "name": "d01_w05_0111",
-        "blockRot": 0
-      }
-    ],
     "35": [
       {
         "name": "d01_w06_0111",
         "blockRot": 0
+      },
+      {
+        "name": "d01_w13_0001",
+        "blockRot": 2
       }
     ],
     "36": [
       {
-        "name": "d01_w01_0101_Alt",
-        "blockRot": 0
+        "name": "d01_w01_0101",
+        "blockRot": 2
       },
       {
         "name": "d01_w03_0101",
@@ -310,17 +290,17 @@
     "37": [
       {
         "name": "d01_w04_0101",
-        "blockRot": 0
+        "blockRot": 2
       },
       {
         "name": "d01_w13_0001",
-        "blockRot": 2
+        "blockRot": 0
       }
     ],
     "38": [
       {
-        "name": "d01_w04_0101_Alt",
-        "blockRot": 0
+        "name": "d01_w04_0101",
+        "blockRot": 2
       },
       {
         "name": "d01_w04_0101",
@@ -330,47 +310,47 @@
     "39": [
       {
         "name": "d01_w03_0101",
-        "blockRot": 0
+        "blockRot": 2
       },
       {
         "name": "d01_w14_0101",
-        "blockRot": 2
+        "blockRot": 0
       }
     ],
     "40": [
       {
         "name": "d01_w01_0101",
-        "blockRot": 0
+        "blockRot": 2
       },
       {
         "name": "d01_w13_0001",
-        "blockRot": 2
+        "blockRot": 0
       }
     ],
     "41": [
       {
         "name": "d01_w16_0101",
-        "blockRot": 0
+        "blockRot": 2
       },
       {
         "name": "d01_w13_0001",
-        "blockRot": 1
+        "blockRot": 3
       }
     ],
     "42": [
       {
         "name": "d01_w02_0101",
-        "blockRot": 0
+        "blockRot": 2
       },
       {
         "name": "d01_w13_0001",
-        "blockRot": 1
+        "blockRot": 3
       }
     ],
     "43": [
       {
-        "name": "d01_w03_0101_Alt",
-        "blockRot": 0
+        "name": "d01_w03_0101",
+        "blockRot": 2
       },
       {
         "name": "d01_w04_0101",
@@ -379,8 +359,8 @@
     ],
     "44": [
       {
-        "name": "d01_w02_0101_Alt",
-        "blockRot": 0
+        "name": "d01_w02_0101",
+        "blockRot": 2
       },
       {
         "name": "d01_w04_0101",
@@ -389,8 +369,8 @@
     ],
     "45": [
       {
-        "name": "d01_w02_0101_Alt",
-        "blockRot": 0
+        "name": "d01_w02_0101",
+        "blockRot": 2
       },
       {
         "name": "d01_w02_0101",
@@ -399,8 +379,8 @@
     ],
     "46": [
       {
-        "name": "d01_w03_0101_Alt",
-        "blockRot": 0
+        "name": "d01_w03_0101",
+        "blockRot": 2
       },
       {
         "name": "d01_w03_0101",
@@ -410,37 +390,41 @@
     "47": [
       {
         "name": "d01_w02_0101",
-        "blockRot": 0
+        "blockRot": 2
       },
       {
         "name": "d01_w13_0001",
-        "blockRot": 2
+        "blockRot": 0
       }
     ],
     "48": [
       {
         "name": "d01_w03_0101",
-        "blockRot": 0
+        "blockRot": 2
       },
       {
         "name": "d01_w13_0001",
-        "blockRot": 1
+        "blockRot": 3
       }
     ],
     "50": [
       {
         "name": "d01_w02_0101",
-        "blockRot": 0
+        "blockRot": 2
       },
       {
         "name": "d01_w14_0101",
-        "blockRot": 2
+        "blockRot": 0
       }
     ],
     "51": [
       {
         "name": "d01_w07_0111",
         "blockRot": 0
+      },
+      {
+        "name": "d01_w13_0001",
+        "blockRot": 2
       }
     ],
     "52": [
@@ -467,8 +451,8 @@
     ],
     "55": [
       {
-        "name": "d01_w01_0101_Unique_Alt",
-        "blockRot": 0
+        "name": "d01_w01_0101_Unique",
+        "blockRot": 2
       },
       {
         "name": "d01_w04_0101",
@@ -478,11 +462,11 @@
     "56": [
       {
         "name": "d01_w01_0101_Unique",
-        "blockRot": 0
+        "blockRot": 2
       },
       {
         "name": "d01_w13_0001",
-        "blockRot": 2
+        "blockRot": 0
       }
     ],
     "57": [
@@ -491,14 +475,14 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w16_0101_Unique_Alt",
-        "blockRot": 0
+        "name": "d01_w16_0101_Unique",
+        "blockRot": 2
       }
     ],
     "58": [
       {
-        "name": "d01_w01_0101_Unique_3_Alt",
-        "blockRot": 0
+        "name": "d01_w01_0101_Unique_3",
+        "blockRot": 2
       },
       {
         "name": "d01_w04_0101",
@@ -508,11 +492,11 @@
     "59": [
       {
         "name": "d01_w16_0101_Unique",
-        "blockRot": 0
+        "blockRot": 2
       },
       {
         "name": "d01_w13_0001",
-        "blockRot": 1
+        "blockRot": 3
       }
     ],
     "60": [
@@ -521,18 +505,18 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w16_0101_Unique_Alt",
-        "blockRot": 0
+        "name": "d01_w16_0101_Unique",
+        "blockRot": 2
       }
     ],
     "61": [
       {
         "name": "d01_w16_0101_Unique_2",
-        "blockRot": 0
+        "blockRot": 2
       },
       {
         "name": "d01_w13_0001",
-        "blockRot": 1
+        "blockRot": 3
       }
     ]
   },
@@ -867,7 +851,7 @@
       "y": 1,
       "chipNo": 4,
       "chipName": "DOWN_STAIR",
-      "cellRot": 1,
+      "cellRot": 0,
       "spriteSetIndex": 11,
       "stair": {
         "goFloor": 1,

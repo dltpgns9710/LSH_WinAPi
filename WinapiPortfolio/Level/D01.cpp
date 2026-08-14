@@ -335,6 +335,39 @@ void D01::Render()
         Matrix4x4 final = viewport * cameraProj * cameraView * model;
         part.sheet->DrawSpriteWarped(final);
     }
+    
+    // 던전 이름 아래에 카메라 위치/이동 방향 디버그 정보 표시. forward는 W, left/right는 Q/E(스트레이프)로
+    // 이동했을 때 도착할 좌표이고, 벽이라도 그대로 계산해서 보여준다(IsWalkable 판정을 거치지 않음).
+    // Vector3는 (x, y=높이, z)이고 이 던전의 이동 평면은 x/z이므로, 화면 표기는 x와 z를 각각 x, y로 매핑한다.
+    // 월드 좌표(cm)를 그대로 보면 읽기 어려워, cellSize로 나눠 그리드 인덱스로 보여준다. z는 GridToWorld의
+    // 부호 반전(z = -(gridY*cellSize))과 짝을 맞춰 -z/cellSize로 나눠야 실제 그리드 y와 일치한다.
+    {
+        Vector3 camPos = GetCamera()->GetPosition();
+        Vector3 forwardDir = QuarterToForward(facingQuarter);
+        Vector3 rightDir(forwardDir.z, 0.f, -forwardDir.x); // Update()의 이동 계산과 동일한 규칙
+        float cellSize = dungeonData.grid.cellSize;
+        Vector3 forwardPos = camPos + forwardDir * cellSize;
+        Vector3 leftPos = camPos - rightDir * cellSize;
+        Vector3 rightPos = camPos + rightDir * cellSize;
+
+        auto toGridIndex = [cellSize](const Vector3& worldPos)
+            {
+                return D2D1::Point2F(worldPos.x / cellSize, -worldPos.z / cellSize);
+            };
+        D2D1_POINT_2F posIdx = toGridIndex(camPos);
+        D2D1_POINT_2F forwardIdx = toGridIndex(forwardPos);
+        D2D1_POINT_2F leftIdx = toGridIndex(leftPos);
+        D2D1_POINT_2F rightIdx = toGridIndex(rightPos);
+
+        wchar_t debugText[256];
+        swprintf_s(debugText,
+            L"pos : %.0f, %.0f\nforward : %.0f, %.0f\nleft : %.0f, %.0f\nright : %.0f, %.0f",
+            posIdx.x, posIdx.y, forwardIdx.x, forwardIdx.y, leftIdx.x, leftIdx.y, rightIdx.x, rightIdx.y);
+
+        D2D1_RECT_F debugRect = D2D1::RectF(clientSize.width - 400.f, 45.f, clientSize.width - 10.f, 165.f);
+        graphics->GetDeviceContext()->DrawText(
+            debugText, static_cast<UINT32>(wcslen(debugText)), nameTextFormat.Get(), debugRect, nameBrush.Get());
+    }
 }
 
 bool D01::IsWalkable(int gridX, int gridY) const

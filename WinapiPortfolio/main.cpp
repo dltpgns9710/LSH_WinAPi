@@ -12,6 +12,7 @@
 #include "Level/Dungeon.h"
 #include "Level/ObjectEditor.h"
 #include "Level/D01.h"
+#include "Level/SpriteSetEditor.h"
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
 #include <dwrite.h>
@@ -113,7 +114,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         //Update
         InputManager::GetInstance().Update();
 
-        // 레벨 전환: F1 = Dungeon, F2 = ObjectEditor, F3 = D01
+        // 레벨 전환: F1 = Dungeon, F2 = ObjectEditor, F3 = D01, F4 = SpriteSetEditor
         if (InputManager::GetInstance().GetButtonDown(KeyType::F1))
         {
             SceneManager::GetInstance().SwitchLevel(std::make_shared<Dungeon>());
@@ -125,6 +126,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         if (InputManager::GetInstance().GetButtonDown(KeyType::F3))
         {
             SceneManager::GetInstance().SwitchLevel(std::make_shared<D01>());
+        }
+        if (InputManager::GetInstance().GetButtonDown(KeyType::F4))
+        {
+            SceneManager::GetInstance().SwitchLevel(std::make_shared<SpriteSetEditor>());
         }
 
         SceneManager::GetInstance().Update(deltaTime);

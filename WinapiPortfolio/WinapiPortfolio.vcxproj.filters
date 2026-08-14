@@ -45,6 +45,9 @@
     <ClInclude Include="Level\D01.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Level\SpriteSetEditor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="D2DFramework\Graphics\include\SpriteSheet.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -123,6 +126,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Level\D01.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Level\SpriteSetEditor.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="D2DFramework\Graphics\src\SpriteSheet.cpp">
