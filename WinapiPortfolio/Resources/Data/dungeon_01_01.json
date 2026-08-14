@@ -271,7 +271,7 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w13_0001",
+        "name": "d01_w13_0001_W01",
         "blockRot": 2
       }
     ],
@@ -281,7 +281,7 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w14_0101",
+        "name": "d01_w14_0101_W16",
         "blockRot": 2
       }
     ],
@@ -313,7 +313,7 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w13_0001",
+        "name": "d01_w13_0001_W04",
         "blockRot": 2
       }
     ],
@@ -333,7 +333,7 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w14_0101",
+        "name": "d01_w14_0101_W03",
         "blockRot": 2
       }
     ],
@@ -343,7 +343,7 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w13_0001",
+        "name": "d01_w13_0001_W01",
         "blockRot": 2
       }
     ],
@@ -353,7 +353,7 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w13_0001",
+        "name": "d01_w13_0001_W16",
         "blockRot": 1
       }
     ],
@@ -363,7 +363,7 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w13_0001",
+        "name": "d01_w13_0001_W02",
         "blockRot": 1
       }
     ],
@@ -413,7 +413,7 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w13_0001",
+        "name": "d01_w13_0001_W02_Flip",
         "blockRot": 2
       }
     ],
@@ -423,7 +423,7 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w13_0001",
+        "name": "d01_w13_0001_W03",
         "blockRot": 1
       }
     ],
@@ -433,7 +433,7 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w14_0101",
+        "name": "d01_w14_0101_W02",
         "blockRot": 2
       }
     ],
@@ -455,7 +455,7 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w14_0101",
+        "name": "d01_w14_0101_W03",
         "blockRot": 2
       }
     ],
@@ -481,7 +481,7 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w13_0001",
+        "name": "d01_w13_0001_W01",
         "blockRot": 2
       }
     ],
@@ -511,7 +511,7 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w13_0001",
+        "name": "d01_w13_0001_W16",
         "blockRot": 1
       }
     ],
@@ -531,7 +531,7 @@
         "blockRot": 0
       },
       {
-        "name": "d01_w13_0001",
+        "name": "d01_w13_0001_W16",
         "blockRot": 1
       }
     ]
