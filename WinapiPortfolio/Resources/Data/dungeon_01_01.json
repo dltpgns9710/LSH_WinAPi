@@ -1194,7 +1194,7 @@
       "y": 2,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 0,
+      "cellRot": 2,
       "spriteSetIndex": 29
     },
     {
@@ -5149,7 +5149,7 @@
       "y": 14,
       "chipNo": 2,
       "chipName": "WALL",
-      "cellRot": 3,
+      "cellRot": 1,
       "spriteSetIndex": 28
     },
     {

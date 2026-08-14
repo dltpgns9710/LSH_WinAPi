@@ -85,6 +85,9 @@ void D01::Load()
         PlaceCell(cell);
     }
 
+    // 시작 위치 기준으로 얇은 벽들의 경사 방향을 첫 프레임부터 맞춰둔다.
+    RefreshDynamicWallFacing(dungeonData.startPosition.x, dungeonData.startPosition.y);
+
     float cellSize = dungeonData.grid.cellSize;
 
     // Camera 기본 farZ(2000cm)는 셀 5칸 거리라, isRenderPosition의 컷 기준(farZ * 1.2 = 6칸)을 넘는
@@ -208,17 +211,19 @@ const std::vector<D01::PartTemplate>& D01::GetOrBuildSpriteTemplate(const std::s
     return inserted.first->second;
 }
 
-void D01::PlaceCell(const Cell& cell)
+std::vector<D01::PlacedPart> D01::BuildCellParts(int gridX, int gridY, int spriteSetIndex, int effectiveCellRot)
 {
-    const std::vector<SpriteSetPart>* setParts = dungeonData.FindSpriteSet(cell.spriteSetIndex);
-    if (!setParts || setParts->empty()) return;
+    std::vector<PlacedPart> result;
+
+    const std::vector<SpriteSetPart>* setParts = dungeonData.FindSpriteSet(spriteSetIndex);
+    if (!setParts || setParts->empty()) return result;
 
     float cellSize = dungeonData.grid.cellSize;
-    Vector3 cellWorldPos = GridToWorld(cell.x, cell.y, cellSize);
+    Vector3 cellWorldPos = GridToWorld(gridX, gridY, cellSize);
 
     for (const SpriteSetPart& setPart : *setParts)
     {
-        int quarterTurns = ((cell.cellRot + setPart.blockRot) % 4 + 4) % 4;
+        int quarterTurns = ((effectiveCellRot + setPart.blockRot) % 4 + 4) % 4;
         float totalRotation = quarterTurns * kHalfPi;
 
         const std::vector<PartTemplate>& templates = GetOrBuildSpriteTemplate(setPart.name);
@@ -235,7 +240,116 @@ void D01::PlaceCell(const Cell& cell)
             placed.extraXRotation = tmpl.extraXRotation;
             placed.layer = tmpl.layer;
             placed.cellCenterWorldPos = cellWorldPos;
-            placedParts.push_back(std::move(placed));
+            result.push_back(std::move(placed));
+        }
+    }
+    return result;
+}
+
+void D01::PlaceCell(const Cell& cell)
+{
+    size_t begin = placedParts.size();
+    for (PlacedPart& part : BuildCellParts(cell.x, cell.y, cell.spriteSetIndex, cell.cellRot))
+    {
+        placedParts.push_back(std::move(part));
+    }
+
+    if (cell.chipName == "WALL")
+    {
+        TryRegisterDynamicWallCell(cell, begin, placedParts.size() - begin);
+    }
+}
+
+std::vector<int> D01::GetDistinctSlopeDirections(int spriteSetIndex)
+{
+    std::vector<int> dirs;
+    const std::vector<SpriteSetPart>* setParts = dungeonData.FindSpriteSet(spriteSetIndex);
+    if (!setParts) return dirs;
+
+    bool seen[4] = { false, false, false, false };
+    for (const SpriteSetPart& setPart : *setParts)
+    {
+        for (const PartTemplate& tmpl : GetOrBuildSpriteTemplate(setPart.name))
+        {
+            if (tmpl.extraXRotation == 0.f) continue; // 경사(rotationX) 없는 파츠는 무시
+
+            // rotationY(0/90/180/270도)를 0=N,1=E,2=S,3=W로 변환. rotationX가 음수면 같은 rotationY라도
+            // 정반대(180도)를 향한다 - 경사 방향 판정 로직에서 검증한 규칙과 동일.
+            int base = (static_cast<int>(std::lround(tmpl.extraYRotation / kHalfPi)) % 4 + 4) % 4;
+            if (tmpl.extraXRotation < 0.f) base = (base + 2) % 4;
+
+            int dir = (base + setPart.blockRot) % 4;
+            if (!seen[dir]) { seen[dir] = true; dirs.push_back(dir); }
+        }
+    }
+    return dirs;
+}
+
+void D01::TryRegisterDynamicWallCell(const Cell& cell, size_t placedIndexBegin, size_t placedCount)
+{
+    std::vector<int> slopeDirs = GetDistinctSlopeDirections(cell.spriteSetIndex);
+    if (slopeDirs.empty()) return; // 경사 자체가 없는 벽은 대상이 아니다
+
+    // 인접 4방향(0=N,1=E,2=S,3=W) 중 실제로 이동 가능(FLOOR)한 방향들 - D01::IsWalkable과 동일 기준.
+    bool walkable[4] =
+    {
+        IsWalkable(cell.x, cell.y - 1),
+        IsWalkable(cell.x + 1, cell.y),
+        IsWalkable(cell.x, cell.y + 1),
+        IsWalkable(cell.x - 1, cell.y),
+    };
+    int walkableCount = (walkable[0] ? 1 : 0) + (walkable[1] ? 1 : 0) + (walkable[2] ? 1 : 0) + (walkable[3] ? 1 : 0);
+    if (walkableCount <= static_cast<int>(slopeDirs.size())) return; // 경사가 이미 충분하면 대상이 아니다
+
+    // 실측 결과 이 던전에서 발생하는 모든 케이스(94곳)가 "경사 방향 1개 + 이동 가능 칸이 정확히
+    // N/S 또는 E/W 반대쌍"인 형태였다. 그 외(코너형, 3방향 이상 등)는 정적 우선순위 규칙이 이미
+    // 최선의 방향을 골라뒀으므로 여기서는 건드리지 않는다.
+    if (slopeDirs.size() != 1) return;
+    bool isNS = walkable[0] && walkable[2] && !walkable[1] && !walkable[3];
+    bool isEW = walkable[1] && walkable[3] && !walkable[0] && !walkable[2];
+    if (!isNS && !isEW) return;
+
+    int currentDir = (slopeDirs[0] + cell.cellRot) % 4; // 지금 authored 상태가 실제로 향하는 방향
+    int altCellRot = (cell.cellRot + 2) % 4;             // 정반대(180도)를 향하게 하는 cellRot
+
+    DynamicWallCell dw;
+    dw.x = cell.x;
+    dw.y = cell.y;
+    dw.spriteSetIndex = cell.spriteSetIndex;
+    dw.isNorthSouth = isNS;
+    dw.currentCellRot = cell.cellRot;
+    dw.placedIndexBegin = placedIndexBegin;
+    dw.placedCount = placedCount;
+
+    if (isNS)
+    {
+        dw.cellRotForNegativeSide = (currentDir == 0) ? cell.cellRot : altCellRot; // North(y가 작은 쪽)
+        dw.cellRotForPositiveSide = (currentDir == 0) ? altCellRot : cell.cellRot; // South(y가 큰 쪽)
+    }
+    else
+    {
+        dw.cellRotForNegativeSide = (currentDir == 3) ? cell.cellRot : altCellRot; // West(x가 작은 쪽)
+        dw.cellRotForPositiveSide = (currentDir == 3) ? altCellRot : cell.cellRot; // East(x가 큰 쪽)
+    }
+
+    dynamicWallCells.push_back(dw);
+}
+
+void D01::RefreshDynamicWallFacing(int cameraGridX, int cameraGridY)
+{
+    for (DynamicWallCell& dw : dynamicWallCells)
+    {
+        int desiredCellRot = dw.isNorthSouth
+            ? (cameraGridY < dw.y ? dw.cellRotForNegativeSide : dw.cellRotForPositiveSide)
+            : (cameraGridX < dw.x ? dw.cellRotForNegativeSide : dw.cellRotForPositiveSide);
+
+        if (desiredCellRot == dw.currentCellRot) continue; // 이미 원하는 방향이면 다시 계산하지 않는다
+        dw.currentCellRot = desiredCellRot;
+
+        std::vector<PlacedPart> parts = BuildCellParts(dw.x, dw.y, dw.spriteSetIndex, desiredCellRot);
+        for (size_t k = 0; k < parts.size() && dw.placedIndexBegin + k < placedParts.size(); ++k)
+        {
+            placedParts[dw.placedIndexBegin + k] = std::move(parts[k]);
         }
     }
 }
@@ -422,7 +536,8 @@ bool D01::IsWalkable(int gridX, int gridY) const
     int index = gridY * dungeonData.grid.width + gridX; // Cell::index와 동일한 규칙 (y*width+x)
     if (index < 0 || static_cast<size_t>(index) >= dungeonData.cells.size()) return false;
 
-    return dungeonData.cells[index].chipName == "FLOOR";
+    const std::string& chipName = dungeonData.cells[index].chipName;
+    return chipName == "FLOOR" || chipName == "TREASURE"; // 보물칸도 걸어 들어갈 수 있는 칸으로 취급
 }
 
 void D01::Update(double deltaTime)
@@ -448,6 +563,7 @@ void D01::Update(double deltaTime)
             if (!IsWalkable(gridX, gridY)) return;
             GetCamera()->moveRequest(dir);
             actionCooldown = kActionCooldown;
+            RefreshDynamicWallFacing(gridX, gridY); // 카메라가 도착할 칸 기준으로 얇은 벽의 경사 방향을 갱신
         };
 
     // Dungeon과 동일한 그리드 이동/회전 조작: W/S/Q/E로 한 칸씩 이동, A/D로 90도 회전.
