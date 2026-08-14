@@ -49,6 +49,10 @@ struct TextureEntry
     Vector3 size;
     float rotationY = 0.f; // 이 파츠를 로컬 Y축으로 추가 회전시키는 각도(도). 기본 0. JSON에 없으면 0.
     float rotationX = 0.f; // 이 파츠를 로컬 X축으로 기울이는 각도(도, pitch). 기본 0. JSON에 없으면 0.
+
+    // 같은 셀 안에서 그리는 순서(작을수록 먼저=뒤에 깔림). 없으면 D01이 크기 기반 휴리스틱으로
+    // 자동 분류한다(셀보다 넓은 오버사이즈 배경/받침 패널=0, 나머지 디테일=1) - tile_layer_sort_design.md 참고.
+    std::optional<int> layer;
 };
 
 inline void from_json(const nlohmann::json& j, TextureEntry& tex)
@@ -71,6 +75,9 @@ inline void from_json(const nlohmann::json& j, TextureEntry& tex)
 
     tex.rotationY = j.contains("rotationY") ? j.at("rotationY").get<float>() : 0.f;
     tex.rotationX = j.contains("rotationX") ? j.at("rotationX").get<float>() : 0.f;
+
+    tex.layer.reset();
+    if (j.contains("layer") && !j.at("layer").is_null()) tex.layer = j.at("layer").get<int>();
 }
 
 struct Sprite

@@ -38,6 +38,7 @@ private:
         bool isFloor = false;   // 법선=Y축(바닥류) 여부
         float extraYRotation = 0.f; // 라디안
         float extraXRotation = 0.f; // 라디안, 계단처럼 파츠 자체를 기울이는(pitch) 추가 회전
+        int layer = 1;           // 같은 셀 안에서 그리는 순서(작을수록 먼저=뒤). 0=배경/받침, 1=디테일.
     };
 
     // 던전 그리드에 실제로 배치되어 월드 좌표/회전이 확정된 파츠.
@@ -49,6 +50,8 @@ private:
         bool isFloor = false;
         float worldYRotation = 0.f; // 라디안
         float extraXRotation = 0.f; // 라디안, 셀 회전과 무관하게 파츠 자신을 축으로 기울이는 pitch
+        int layer = 1;           // PartTemplate::layer 그대로 복사
+        Vector3 cellCenterWorldPos; // 이 파츠가 속한 셀의 중심(y=0). 셀 단위 정렬 기준점 - tile_layer_sort_design.md 참고.
     };
 
     // 스프라이트 이름으로 텍스처 파츠 목록을 가져온다. 처음 요청된 이름이면 그때 잘라서 캐시에 채운다.

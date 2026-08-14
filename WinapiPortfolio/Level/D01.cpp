@@ -116,6 +116,7 @@ const std::vector<D01::PartTemplate>& D01::GetOrBuildSpriteTemplate(const std::s
     if (found != spriteTemplateCache.end()) return found->second;
 
     std::vector<PartTemplate> parts;
+    float cellSize = dungeonData.grid.cellSize;
 
     const Sprite* sprite = nullptr;
     for (const Sprite& s : spriteMapData.sprites)
@@ -170,6 +171,18 @@ const std::vector<D01::PartTemplate>& D01::GetOrBuildSpriteTemplate(const std::s
             part.extraYRotation = tex.rotationY * static_cast<float>(MathUtil::pi / 180.0);
             part.extraXRotation = tex.rotationX * static_cast<float>(MathUtil::pi / 180.0);
 
+            // 하이브리드: JSON에 layer가 명시돼 있으면 그대로 쓰고, 없으면 크기로 자동 분류한다
+            // (셀보다 넓은 오버사이즈 배경/받침 패널=0, 나머지 디테일=1) - tile_layer_sort_design.md 참고.
+            if (tex.layer.has_value())
+            {
+                part.layer = *tex.layer;
+            }
+            else
+            {
+                bool oversized = (ax > cellSize) || (az > cellSize);
+                part.layer = oversized ? 0 : 1;
+            }
+
             parts.push_back(std::move(part));
         }
     }
@@ -203,6 +216,8 @@ void D01::PlaceCell(const Cell& cell)
             placed.isFloor = tmpl.isFloor;
             placed.worldYRotation = tmpl.extraYRotation + totalRotation;
             placed.extraXRotation = tmpl.extraXRotation;
+            placed.layer = tmpl.layer;
+            placed.cellCenterWorldPos = cellWorldPos;
             placedParts.push_back(std::move(placed));
         }
     }
@@ -238,7 +253,8 @@ void D01::Render()
     struct VisiblePart
     {
         const PlacedPart* part;
-        float depth; // z-버퍼 값(클수록 카메라에서 멀다), 네 모서리 중 가장 먼 지점 기준
+        float depth; // z-버퍼 값(클수록 카메라에서 멀다), 네 모서리 중 가장 먼 지점 기준. 같은 셀·같은 layer일 때만 타이브레이크로 씀.
+        float cellDepth; // 이 파츠가 속한 셀 중심의 view-space Z. 코너가 아니라 점 하나라 보는 방향이 바뀌어도 뒤집히지 않는다.
     };
 
     auto computeCorners = [](const PlacedPart& p, Vector3 outCorners[4])
@@ -288,7 +304,15 @@ void D01::Render()
         }
         if (!visible) continue;
 
-        drawOrder.push_back({ &part, depth });
+        // 셀 중심(y=0, 파츠 회전과 무관하게 고정)의 view-space Z. 파츠 자신의 코너 대신 이 점을 1차
+        // 정렬 기준으로 쓰면, 셀보다 넓은 오버사이즈 배경 패널이 회전으로 인해 인접 셀 깊이 범위를
+        // 침범해도(코너 기반 depth가 방향에 따라 뒤집히던 원인) "어느 셀 소속인가"는 안 바뀌므로
+        // 정렬 순서가 보는 방향에 따라 뒤집히지 않는다 - tile_layer_sort_design.md 참고.
+        const Vector3& c = part.cellCenterWorldPos;
+        float cellDepth = cameraView.m[2][0] * c.x + cameraView.m[2][1] * c.y
+            + cameraView.m[2][2] * c.z + cameraView.m[2][3];
+
+        drawOrder.push_back({ &part, depth, cellDepth });
     }
 
     // D2D는 깊이 테스트 없이 그린 순서대로 위에 덮어 그리므로, 카메라로부터 먼 텍스처부터 그려야 한다.
@@ -298,7 +322,10 @@ void D01::Render()
     std::sort(drawOrder.begin(), drawOrder.end(), [&](const VisiblePart& a, const VisiblePart& b)
         {
             if (isGroundFloor(a.part) != isGroundFloor(b.part)) return isGroundFloor(a.part);
-            return a.depth > b.depth; // 먼 것부터(내림차순) 그린다
+            if (a.cellDepth != b.cellDepth) return a.cellDepth > b.cellDepth; // 먼 셀부터(내림차순)
+            // 같은 셀 안에서는 지오메트리 깊이 대신 데이터로 명시된 layer를 따른다(작을수록 먼저=배경).
+            if (a.part->layer != b.part->layer) return a.part->layer < b.part->layer;
+            return a.depth > b.depth; // 같은 셀·같은 layer일 때만 코너-depth로 타이브레이크
         });
 
     for (const VisiblePart& visiblePart : drawOrder)
