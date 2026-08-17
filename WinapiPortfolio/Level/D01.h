@@ -93,7 +93,7 @@ private:
     // 카메라가 칸을 옮길 때(Update의 tryMove 성공 시)만 호출한다.
     void RefreshDynamicWallFacing(int cameraGridX, int cameraGridY);
 
-    // 그리드 좌표(gridX,gridY) 칸이 이동 가능한지(FLOOR 또는 TREASURE) 확인한다. 범위 밖이면 false.
+    // 그리드 좌표(gridX,gridY) 칸이 이동 가능한지(FLOOR, TREASURE, UP_STAIR, DOWN_STAIR) 확인한다. 범위 밖이면 false.
     bool IsWalkable(int gridX, int gridY) const;
 
     std::shared_ptr<class SpriteAtlas> background;
@@ -114,13 +114,6 @@ private:
     // 카메라가 현재 바라보는 방향(그리드 기준 90도 단위, 0=+Z). A/D 회전 시 함께 갱신하며,
     // 이동 전에 목적지 칸이 FLOOR인지 판정하는 데 쓴다.
     int facingQuarter = 0;
-
-    // Camera::moveRequest/rotateRequest는 애니메이션 중이면 요청을 조용히 무시한다(카메라 상태는
-    // 안 바뀜). 그런데 D01은 그 성공 여부를 알 수 없는 채로 facingQuarter를 무조건 갱신했었고,
-    // 요청이 씹히면 facingQuarter(우리가 믿는 방향)와 카메라의 실제 방향이 어긋나 그 뒤 모든 이동
-    // 판정이 틀어지는 버그가 있었다. 그래서 D01이 직접 쿨다운을 관리해, 이전 요청이 끝났을 시점
-    // 이후에만 새 요청을 보낸다(카메라가 반드시 idle일 때만 호출하므로 항상 성공한다).
-    float actionCooldown = 0.f;
 
     // 화면 우측 상단에 현재 던전 이름을 표시하기 위한 DirectWrite 리소스
     Microsoft::WRL::ComPtr<IDWriteFactory> nameDWriteFactory;

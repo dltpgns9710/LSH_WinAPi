@@ -25,11 +25,6 @@ namespace
     constexpr float kCameraNearZ = 20.f;
     constexpr float kCameraFarZ = 2000.f; // 5칸 (컬링 한계는 2400cm = 6칸)
 
-    // Camera.cpp의 kTransitionDuration(이동/회전 애니메이션 지속시간)과 반드시 같은 값이어야 한다.
-    // D01은 이 시간이 지나기 전에는 새 이동/회전 요청을 보내지 않아, 카메라가 요청을 조용히
-    // 무시하는 상황(및 그로 인한 facingQuarter 어긋남)을 원천적으로 막는다.
-    constexpr float kActionCooldown = 0.5f;
-
     // ObjectEditor.cpp의 RotateY와 동일. 셀 배치 시 스프라이트 파츠의 로컬 좌표를 셀 회전만큼 돌리기 위해 사용.
     Vector3 RotateY(const Vector3& v, float radians)
     {
@@ -290,7 +285,7 @@ void D01::TryRegisterDynamicWallCell(const Cell& cell, size_t placedIndexBegin, 
     std::vector<int> slopeDirs = GetDistinctSlopeDirections(cell.spriteSetIndex);
     if (slopeDirs.empty()) return; // 경사 자체가 없는 벽은 대상이 아니다
 
-    // 인접 4방향(0=N,1=E,2=S,3=W) 중 실제로 이동 가능(FLOOR)한 방향들 - D01::IsWalkable과 동일 기준.
+    // 인접 4방향(0=N,1=E,2=S,3=W) 중 실제로 이동 가능한 방향들 - D01::IsWalkable과 동일 기준.
     bool walkable[4] =
     {
         IsWalkable(cell.x, cell.y - 1),
@@ -537,7 +532,8 @@ bool D01::IsWalkable(int gridX, int gridY) const
     if (index < 0 || static_cast<size_t>(index) >= dungeonData.cells.size()) return false;
 
     const std::string& chipName = dungeonData.cells[index].chipName;
-    return chipName == "FLOOR" || chipName == "TREASURE"; // 보물칸도 걸어 들어갈 수 있는 칸으로 취급
+    // 보물칸/계단칸도 걸어 들어갈 수 있는 칸으로 취급
+    return chipName == "FLOOR" || chipName == "TREASURE" || chipName == "UP_STAIR" || chipName == "DOWN_STAIR";
 }
 
 void D01::Update(double deltaTime)
@@ -545,16 +541,14 @@ void D01::Update(double deltaTime)
     super::Update(deltaTime);
     GetCamera()->Update(deltaTime);
 
-    actionCooldown -= static_cast<float>(deltaTime);
-    if (actionCooldown > 0.f) return; // 이전 이동/회전이 끝났을 시점 전이면 새 요청을 보내지 않는다.
-    actionCooldown = 0.f;
+    if (!GetCamera()->IsIdle()) return; // 이전 이동/회전 애니메이션이 끝나기 전에는 새 요청을 보내지 않는다.
 
     float cellSize = dungeonData.grid.cellSize;
     Vector3 forward = QuarterToForward(facingQuarter);
     Vector3 right(forward.z, 0.f, -forward.x); // Camera::moveRequest와 동일한 규칙
 
-    // 이동 요청 전에 목적지 칸이 FLOOR인지 먼저 확인한다. actionCooldown 덕분에 카메라는 항상
-    // idle 상태에서 호출되므로, 여기서 walkable이면 moveRequest는 반드시 실제로 이동을 수행한다.
+    // 이동 요청 전에 목적지 칸이 FLOOR인지 먼저 확인한다. 카메라가 idle일 때만 여기 들어오므로,
+    // walkable이면 moveRequest는 반드시 실제로 이동을 수행한다.
     auto tryMove = [&](EMoveDirection dir, const Vector3& delta)
         {
             Vector3 dest = GetCamera()->GetPosition() + delta;
@@ -562,7 +556,6 @@ void D01::Update(double deltaTime)
             int gridY = static_cast<int>(std::lround(-dest.z / cellSize)); // GridToWorld의 z 반전과 짝을 맞춘 역변환
             if (!IsWalkable(gridX, gridY)) return;
             GetCamera()->moveRequest(dir);
-            actionCooldown = kActionCooldown;
             RefreshDynamicWallFacing(gridX, gridY); // 카메라가 도착할 칸 기준으로 얇은 벽의 경사 방향을 갱신
         };
 
@@ -576,12 +569,10 @@ void D01::Update(double deltaTime)
     {
         GetCamera()->rotateRequest(ERotateDirection::Left);
         facingQuarter = (facingQuarter + 1) % 4;
-        actionCooldown = kActionCooldown;
     }
     if (InputManager::GetInstance().GetButtonDown(KeyType::D))
     {
         GetCamera()->rotateRequest(ERotateDirection::Right);
         facingQuarter = (facingQuarter + 3) % 4;
-        actionCooldown = kActionCooldown;
     }
 }

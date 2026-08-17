@@ -53,7 +53,10 @@ public:
 	bool isRenderPosition(const Vector3 targetPosition);
 	bool isRenderTile(const struct FloorTileInstance& targetTile);
 	bool isRenderPoint(const Vector3 targetPosition); // 프러스텀 평면(planes) 전부의 안쪽인지 점 하나만 검사
-	
+
+	// moveRequest/rotateRequest가 idle이 아니면 요청을 조용히 무시하므로, 호출 전에 확인해 씹히지 않게 한다.
+	inline bool IsIdle() const { return cameraState == ECameraState::idle; }
+
 	void RotateCameraRadian(float radian);
 	void RotateCameraDegree(float degree);
 	
