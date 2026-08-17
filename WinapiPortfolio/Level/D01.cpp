@@ -372,6 +372,9 @@ void D01::Render()
     Matrix4x4 cameraProj = GetCamera()->GetProjectionMatrix();
     Matrix4x4 viewport = Matrix4x4::Viewport(clientSize.width, clientSize.height);
     Matrix4x4 viewProj = cameraProj * cameraView; // z-버퍼 정렬용
+    // 파츠와 무관한 프레임 상수라 루프 밖에서 한 번만 계산해두고 재사용한다 - 안 그러면 그리기
+    // 루프에서 viewProj를 재사용하지 못하고 파츠마다 cameraProj * cameraView를 다시 계산하게 된다.
+    Matrix4x4 viewportViewProj = viewport * viewProj;
 
     // 파츠 하나당 실제로 그려지는 사각형의 네 모서리(월드 좌표). 컬링(프러스텀 판정)과 깊이 정렬
     // 둘 다 이 모서리가 필요해서, 파츠마다 한 번만 계산해 재사용한다 - 예전에는 정렬 비교자 안에서
@@ -388,15 +391,26 @@ void D01::Render()
             float halfX = p.size.x * 0.5f;
             float halfOther = (p.isFloor ? p.size.z : p.size.y) * 0.5f;
             float tiltRadians = p.extraXRotation + (p.isFloor ? kHalfPi : 0.f);
+
+            // 코너 4개 모두 같은 tiltRadians·worldYRotation을 쓰므로, RotateX/RotateY를 코너마다
+            // 호출해 sin/cos을 4번씩 중복 계산하는 대신 한 번만 구해서 회전식을 직접 전개해 적용한다.
+            float sinTilt = std::sin(tiltRadians);
+            float cosTilt = std::cos(tiltRadians);
+            float sinYaw = std::sin(p.worldYRotation);
+            float cosYaw = std::cos(p.worldYRotation);
+
             int i = 0;
             for (float sx : { -1.f, 1.f })
             {
                 for (float sy : { -1.f, 1.f })
                 {
-                    Vector3 corner(sx * halfX, sy * halfOther, 0.f);
-                    corner = RotateX(corner, tiltRadians);
-                    corner = RotateY(corner, p.worldYRotation);
-                    outCorners[i++] = p.worldPosition + corner;
+                    float x0 = sx * halfX;
+                    float y0 = sy * halfOther;
+                    // z0 = 0이므로 RotateX(x0, y0, 0) = (x0, cosTilt*y0, sinTilt*y0)까지만 남는다.
+                    float rx = cosYaw * x0 + sinYaw * (sinTilt * y0);
+                    float ry = cosTilt * y0;
+                    float rz = -sinYaw * x0 + cosYaw * (sinTilt * y0);
+                    outCorners[i++] = p.worldPosition + Vector3(rx, ry, rz);
                 }
             }
         };
@@ -485,7 +499,7 @@ void D01::Render()
                 * Matrix4x4::Translation(Vector3(-pixelW / 2.f, -pixelH / 2.f, 0.f));
         }
 
-        Matrix4x4 final = viewport * cameraProj * cameraView * model;
+        Matrix4x4 final = viewportViewProj * model;
         part.sheet->DrawSpriteWarped(final);
     }
     

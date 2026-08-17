@@ -78,6 +78,7 @@ void Camera::Update(double deltaTime)
 			elapsedTime = 0.0f;
 		}
 		else theta = MathUtil::Lerp(theta, targetTheta, static_cast<float>(elapsedTime / kTransitionDuration));
+		RefreshThetaCache();
 		for (auto& plane : planes)
 		{
 			plane.RotateFromBaseWithRadian(-theta);
@@ -104,11 +105,9 @@ bool Camera::isRenderPosition(const Vector3 targetPosition)
 {
 	Vector3 localPosition = targetPosition - position;
 
-	float c = std::cos(theta);
-	float s = std::sin(theta);
-	Vector3 viewLocalPosition(c * localPosition.x + s * localPosition.z, 
-								localPosition.y, 
-								-s * localPosition.x + c * localPosition.z);
+	Vector3 viewLocalPosition(cachedCosTheta * localPosition.x + cachedSinTheta * localPosition.z,
+								localPosition.y,
+								-cachedSinTheta * localPosition.x + cachedCosTheta * localPosition.z);
 
 	//1차
 	float offset = farZ * 0.2f;
@@ -152,7 +151,8 @@ bool Camera::isRenderPoint(const Vector3 targetPosition)
 void Camera::RotateCameraRadian(float radian)
 {
 	theta += radian;
-	
+	RefreshThetaCache();
+
 	if (planes.empty()) return;
 	for (auto& plane : planes)
 	{
@@ -211,6 +211,12 @@ void Camera::rotateRequest(ERotateDirection rotateDir, float rotateDegree)
 	targetTheta += rad;
 	cameraState = ECameraState::rotate;
 	elapsedTime = 0;
+}
+
+void Camera::RefreshThetaCache()
+{
+	cachedCosTheta = std::cos(theta);
+	cachedSinTheta = std::sin(theta);
 }
 
 void Camera::InitPlanes()

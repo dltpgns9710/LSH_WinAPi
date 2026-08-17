@@ -64,6 +64,7 @@ public:
 	void rotateRequest(ERotateDirection rotateDir, float rotateDegree = 90.0f);
 private:
 	void InitPlanes();
+	void RefreshThetaCache();
 	
 	ECameraState cameraState = ECameraState::idle;
 	
@@ -78,6 +79,8 @@ private:
 	
 	float theta = 0; //radian
 	float targetTheta = 0; //radian
-	
+	float cachedCosTheta = 1.f; // theta가 바뀌는 시점(Update/RotateCameraRadian)에만 갱신 - isRenderPosition에서 매 호출마다 재계산하지 않기 위한 캐시
+	float cachedSinTheta = 0.f;
+
 	float elapsedTime = 0;
 };
