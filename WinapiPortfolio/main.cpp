@@ -11,7 +11,7 @@
 #include "D2DFramework/Manager/include/SpriteSheetManager.h"
 #include "Level/Dungeon.h"
 #include "Level/ObjectEditor.h"
-#include "Level/D01.h"
+#include "Level/D01/D01.h"
 #include "Level/SpriteSetEditor.h"
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
