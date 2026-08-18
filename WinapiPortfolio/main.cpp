@@ -68,7 +68,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     DataManager::GetInstance().Init(L"Resources/Data");
     GameLevel::Init(graphics);
     SceneManager::GetInstance().Init();
-    SceneManager::GetInstance().LoadInitialLevel(std::make_shared<Dungeon>());
+    SceneManager::GetInstance().LoadInitialLevel(std::make_shared<D01>());
 
     // FPS 표시용 DirectWrite 리소스
     ComPtr<IDWriteFactory> fpsDWriteFactory;
@@ -115,6 +115,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         InputManager::GetInstance().Update();
 
         // 레벨 전환: F1 = Dungeon, F2 = ObjectEditor, F3 = D01, F4 = SpriteSetEditor
+        /*
         if (InputManager::GetInstance().GetButtonDown(KeyType::F1))
         {
             SceneManager::GetInstance().SwitchLevel(std::make_shared<Dungeon>());
@@ -122,16 +123,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         if (InputManager::GetInstance().GetButtonDown(KeyType::F2))
         {
             SceneManager::GetInstance().SwitchLevel(std::make_shared<ObjectEditor>());
-        }
-        if (InputManager::GetInstance().GetButtonDown(KeyType::F3))
-        {
-            SceneManager::GetInstance().SwitchLevel(std::make_shared<D01>());
-        }
+        
         if (InputManager::GetInstance().GetButtonDown(KeyType::F4))
         {
             SceneManager::GetInstance().SwitchLevel(std::make_shared<SpriteSetEditor>());
         }
-
+        */
+        if (InputManager::GetInstance().GetButtonDown(KeyType::F3))
+        {
+            SceneManager::GetInstance().SwitchLevel(std::make_shared<D01>());
+        }
         SceneManager::GetInstance().Update(deltaTime);
 
         //PostUpdate
@@ -255,6 +256,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         UINT height = HIWORD(lParam);
         if (graphics) {
             //graphics->Resize(width, height);
+        }
+        if (height > 0)
+        {
+            SceneManager::GetInstance().OnResize((float)width, (float)height);
         }
         }
         break;
