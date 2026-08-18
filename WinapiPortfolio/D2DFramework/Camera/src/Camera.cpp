@@ -28,6 +28,14 @@ void Camera::SetPosition(const Vector3& newPosition)
 void Camera::SetAspectRatio(float newAspectRatio)
 {
 	aspectRatio = newAspectRatio;
+
+	// InitPlanes()는 기본(회전 전) 방향의 평면을 다시 만들 뿐이므로, 지금까지의 회전(theta)을
+	// 새 평면에도 그대로 적용해야 RotateCameraRadian으로 누적해온 방향이 어긋나지 않는다.
+	InitPlanes();
+	for (auto& plane : planes)
+	{
+		plane.RotateFromBaseWithRadian(-theta);
+	}
 }
 
 void Camera::SetFov(float fovDegrees)
@@ -221,6 +229,8 @@ void Camera::RefreshThetaCache()
 
 void Camera::InitPlanes()
 {
+	planes.clear(); // SetAspectRatio에서 재호출될 수 있어, 누적 push_back으로 평면이 중복되지 않게 비운다.
+
 	float s = std::sin(fov/2);
 	float c = std::cos(fov/2);
 	

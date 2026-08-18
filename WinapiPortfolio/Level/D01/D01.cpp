@@ -66,6 +66,7 @@ void D01::Load()
     GetCamera()->SetPosition(startWorldPos);
 
     // 화면 우측 상단에 던전 이름을 표시하기 위한 DirectWrite 리소스 준비
+    /*
     DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
         reinterpret_cast<IUnknown**>(nameDWriteFactory.GetAddressOf()));
     nameDWriteFactory->CreateTextFormat(L"Consolas", nullptr,
@@ -73,6 +74,7 @@ void D01::Load()
         20.0f, L"en-us", nameTextFormat.GetAddressOf());
     nameTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
     graphics->GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), nameBrush.GetAddressOf());
+    */
 }
 
 void D01::UnLoad()
@@ -90,12 +92,6 @@ void D01::Render()
 
     D2D1_SIZE_F clientSize = graphics->GetDeviceContext()->GetSize();
 
-    // 우측 상단에 던전 id 표시
-    std::wstring wname(dungeonData.dungeonId.begin(), dungeonData.dungeonId.end());
-    D2D1_RECT_F nameRect = D2D1::RectF(clientSize.width - 400.f, 10.f, clientSize.width - 10.f, 40.f);
-    graphics->GetDeviceContext()->DrawText(
-        wname.c_str(), static_cast<UINT32>(wname.size()), nameTextFormat.Get(), nameRect, nameBrush.Get());
-
     if (cellPlacer.GetPlacedParts().empty()) return;
 
     partRenderer.Render(cellPlacer.GetPlacedParts(), GetCamera().get(), clientSize);
@@ -106,6 +102,7 @@ void D01::Render()
     // 월드 좌표(cm)를 그대로 보면 읽기 어려워, cellSize로 나눠 그리드 인덱스로 보여준다. z는 GridToWorld의
     // 부호 반전(z = -(gridY*cellSize))과 짝을 맞춰 -z/cellSize로 나눠야 실제 그리드 y와 일치한다.
     {
+        /*
         Vector3 camPos = GetCamera()->GetPosition();
         Vector3 forwardDir = QuarterToForward(facingQuarter);
         Vector3 rightDir(forwardDir.z, 0.f, -forwardDir.x); // Update()의 이동 계산과 동일한 규칙
@@ -131,6 +128,7 @@ void D01::Render()
         D2D1_RECT_F debugRect = D2D1::RectF(clientSize.width - 400.f, 45.f, clientSize.width - 10.f, 165.f);
         graphics->GetDeviceContext()->DrawText(
             debugText, static_cast<UINT32>(wcslen(debugText)), nameTextFormat.Get(), debugRect, nameBrush.Get());
+        */
     }
 }
 

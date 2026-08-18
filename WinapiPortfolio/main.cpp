@@ -2,6 +2,7 @@
 //
 
 #include <memory>
+#include <filesystem>
 #include "framework.h"
 #include "WinapiPortfolio.h"
 #include "D2DFramework/Graphics/include/Graphics.h"
@@ -15,6 +16,9 @@
 #include "Level/SpriteSetEditor.h"
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
+// D01/Dungeon/ObjectEditor 등이 멤버로 갖는 ComPtr<IDWriteTextFormat> 등을 make_shared로
+// 생성/해제하려면 이 번역 단위에서도 완전한 타입 정의가 필요하다 (FPS 표시 자체는 제거했지만
+// include는 그래서 남겨둔다).
 #include <dwrite.h>
 #pragma comment(lib, "dwrite.lib")
 
@@ -63,30 +67,23 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WINAPIPORTFOLIO));
 
     InputManager::GetInstance().Init(gHwnd);
-    
-    SpriteSheetManager::GetInstance().Init(graphics, L"Resources/Texture");
-    DataManager::GetInstance().Init(L"Resources/Data");
+
+    // 리소스 경로를 exe 자신의 위치 기준으로 잡는다. 상대 경로(예: L"Resources/Texture")를 그대로
+    // 쓰면 현재 작업 디렉터리(exe를 실행한 위치) 기준으로 풀리는데, 탐색기에서 exe를 직접
+    // 더블클릭하면 작업 디렉터리가 exe가 있는 폴더가 되어 리소스를 못 찾는다 (Visual Studio의
+    // F5 실행만 작업 디렉터리를 프로젝트 폴더로 잡아줘서 우연히 동작했었다).
+    // Resources는 빌드 후 PostBuildEvent가 exe와 같은 출력 폴더로 복사해두므로, exe 바로
+    // 옆에서 찾는다 - 이렇게 해야 x64\Release 폴더 하나만 통째로 다른 환경에 배포할 수 있다.
+    wchar_t exePathBuf[MAX_PATH];
+    GetModuleFileNameW(nullptr, exePathBuf, MAX_PATH);
+    std::filesystem::path exeDir = std::filesystem::path(exePathBuf).parent_path();
+
+    SpriteSheetManager::GetInstance().Init(graphics, exeDir / L"Resources/Texture");
+    DataManager::GetInstance().Init(exeDir / L"Resources/Data");
     GameLevel::Init(graphics);
     SceneManager::GetInstance().Init();
     SceneManager::GetInstance().LoadInitialLevel(std::make_shared<D01>());
 
-    // FPS 표시용 DirectWrite 리소스
-    ComPtr<IDWriteFactory> fpsDWriteFactory;
-    ComPtr<IDWriteTextFormat> fpsTextFormat;
-    ComPtr<ID2D1SolidColorBrush> fpsBrush;
-
-    DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
-        reinterpret_cast<IUnknown**>(fpsDWriteFactory.GetAddressOf()));
-    fpsDWriteFactory->CreateTextFormat(L"Consolas", nullptr,
-        DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL,
-        16.0f, L"en-us", fpsTextFormat.GetAddressOf());
-    graphics->GetDeviceContext()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow), fpsBrush.GetAddressOf());
-
-    double fpsTimer = 0.0;
-    int fpsFrameCount = 0;
-    double fps = 0.0;
-    // FPS 표시용 DirectWrite 리소스 끝
-    
     MSG msg;
     msg.message = WM_NULL;
 
@@ -101,16 +98,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         QueryPerformanceCounter(&now);
         double deltaTime = (double)(now.QuadPart - prev.QuadPart) / freq.QuadPart;
 
-        // FPS 계산 (0.5초마다 갱신)
-        fpsFrameCount++;
-        fpsTimer += deltaTime;
-        if (fpsTimer >= 0.5)
-        {
-            fps = fpsFrameCount / fpsTimer;
-            fpsFrameCount = 0;
-            fpsTimer = 0.0;
-        }// FPS 계산 (0.5초마다 갱신) 끝
-
         //Update
         InputManager::GetInstance().Update();
 
@@ -123,7 +110,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         if (InputManager::GetInstance().GetButtonDown(KeyType::F2))
         {
             SceneManager::GetInstance().SwitchLevel(std::make_shared<ObjectEditor>());
-        
+        }
         if (InputManager::GetInstance().GetButtonDown(KeyType::F4))
         {
             SceneManager::GetInstance().SwitchLevel(std::make_shared<SpriteSetEditor>());
@@ -133,6 +120,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         {
             SceneManager::GetInstance().SwitchLevel(std::make_shared<D01>());
         }
+
         SceneManager::GetInstance().Update(deltaTime);
 
         //PostUpdate
@@ -141,14 +129,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         //Render
         graphics->BeginDraw();
         SceneManager::GetInstance().Render();
-
-        // FPS 표시
-        wchar_t fpsText[32];
-        swprintf_s(fpsText, L"FPS: %.1f", fps);
-        graphics->GetDeviceContext()->DrawText(
-            fpsText, (UINT32)wcslen(fpsText), fpsTextFormat.Get(),
-            D2D1::RectF(10.0f, 10.0f, 200.0f, 40.0f), fpsBrush.Get());
-        // FPS 표시 끝
         graphics->EndDraw();
 
         prev = now;

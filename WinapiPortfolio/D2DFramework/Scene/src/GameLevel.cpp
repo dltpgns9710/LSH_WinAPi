@@ -10,6 +10,18 @@ std::shared_ptr<Graphics> GameLevel::graphics;
 GameLevel::GameLevel()
 {
 	camera = std::make_shared<Camera>();
+
+	// Camera 기본 생성자는 aspectRatio를 1920/1080으로 고정해두는데, 실제 창 크기가 그와 다르면
+	// (main.cpp가 CW_USEDEFAULT로 창을 만들어서 보통 다르다) 컬링 프러스텀과 실제 화면 비율이
+	// 어긋난다. 레벨(=카메라)이 새로 생성되는 시점에 실제 렌더 타겟 크기로 맞춰준다.
+	if (graphics)
+	{
+		D2D1_SIZE_F size = graphics->GetDeviceContext()->GetSize();
+		if (size.height > 0.f)
+		{
+			camera->SetAspectRatio(size.width / size.height);
+		}
+	}
 }
 
 void GameLevel::Render()

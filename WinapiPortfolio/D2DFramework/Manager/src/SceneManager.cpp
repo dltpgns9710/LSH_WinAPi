@@ -1,4 +1,5 @@
 #include "../include/SceneManager.h"
+#include "../../Camera/include/Camera.h"
 
 void SceneManager::Init()
 {
@@ -21,6 +22,12 @@ void SceneManager::SwitchLevel(std::shared_ptr<GameLevel> level)
 	currentLevel.reset();
 	currentLevel = level;
 	loading = false;
+}
+
+void SceneManager::OnResize(float width, float height)
+{
+	if (!currentLevel || !currentLevel->GetCamera() || height <= 0.f) return;
+	currentLevel->GetCamera()->SetAspectRatio(width / height);
 }
 
 void SceneManager::Render()

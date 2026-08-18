@@ -12,6 +12,8 @@ public:
 	void LoadInitialLevel(std::shared_ptr<GameLevel> level);
 	void SwitchLevel(std::shared_ptr<GameLevel> level);
 
+	void OnResize(float width, float height);
+
 	void Render();
 	void Update(double deltaTime);
 	void PostUpdate();
